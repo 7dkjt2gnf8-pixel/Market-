@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="screen-orientation" content="landscape">
+<title>Market+ — Mon Petit Marché</title>
+
+<!-- ---- PWA / home screen icons ---- -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#e8973a">
+<meta name="apple-mobile-web-app-title" content="Market+">
+<meta name="application-name" content="Market+">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48x48.png">
+
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="icons/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="icons/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="icons/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="icons/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167x167.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180x180.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wood:#8a5a3c;
+    --wood-dark:#6b4429;
+    --cream:#fbf3e3;
+    --ink:#3c2a1e;
+    --accent:#e8973a;
+    --accent-dark:#c9762a;
+    --sale:#4a8c58;
+    --sad:#c1443d;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    font-family:'Nunito',sans-serif;
+    background:linear-gradient(180deg,#fdf7ea,#f3ead6);
+    color:var(--ink);
+    overflow:hidden;
+    overscroll-behavior:none;
+  }
+  #app{
+    display:flex;flex-direction:row;
+    height:100vh;
+    width:100%;
+  }
+  /* ---- Splash / launch screen ---- */
+  #splashScreen{
+    position:fixed; inset:0;
+    z-index:10000;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,#ffe3a8,#c9762a);
+    transition:opacity .4s ease, visibility .4s ease;
+  }
+  #splashScreen.hide{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+  }
+  .splash-content{
+    text-align:center;
+    padding:24px;
+  }
+  .splash-icon{
+    font-size:76px;
+    line-height:1;
+    filter:drop-shadow(0 8px 12px rgba(60,42,30,0.35));
+    animation:splashBob 2.4s ease-in-out infinite;
+  }
+  @keyframes splashBob{
+    0%,100%{ transform:translateY(0) rotate(-4deg); }
+    50%{ transform:translateY(-12px) rotate(4deg); }
+  }
+  .splash-title{
+    font-family:'Baloo 2',cursive;
+    font-weight:800;
+    font-size:clamp(32px,7vw,52px);
+    color:#fff;
+    margin:10px 0 2px;
+    text-shadow:0 3px 10px rgba(60,42,30,0.35);
+    animation:splashPop .55s ease both;
+  }
+  .splash-title .plus{ color:#fbf3e3; }
+  .splash-sub{
+    font-family:'Nunito',sans-serif;
+    font-weight:700;
+    color:#fff8ec;
+    opacity:0.92;
+    margin:0 0 26px;
+    font-size:14px;
+    animation:splashPop .55s ease .08s both;
+  }
+  @keyframes splashPop{
+    from{ opacity:0; transform:translateY(16px) scale(0.92); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  .splash-btn{
+    display:block;
+    width:min(86vw,320px);
+    margin:0 auto 12px;
+    padding:14px 18px;
+    border-radius:999px;
+    font-family:'Baloo 2',cursive;
+    font-weight:800;
+    font-size:15px;
+    border:2px solid var(--wood-dark);
+    cursor:pointer;
+    animation:splashPop .55s ease both;
+    box-shadow:0 4px 0 rgba(0,0,0,0.15);
+  }
+  .splash-btn:active{ transform:translateY(3px); box-shadow:none; }
+  .splash-btn.primary{
+    background:#fff; color:var(--wood-dark);
+    animation-delay:.14s;
+  }
+  .splash-btn:not(.primary){
+    background:linear-gradient(135deg,#e8973a,#c9556f);
+    color:#fff;
+    animation-delay:.2s;
+  }
+  #resumeBtn{ display:none; }
+  /* ---- Rotate-device overlay (portrait fallback) ---- */
+  #rotateOverlay{
+    display:none;
+    position:fixed; inset:0;
+    background:#3c2a1e; color:#fbf3e3;
+    flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; font-family:'Baloo 2',cursive;
+    font-size:18px; gap:14px; z-index:9999; padding:24px;
+  }
+  #rotateOverlay .icon{ font-size:52px; animation:spin 2.2s ease-in-out infinite; }
+  @keyframes spin{
+    0%,100%{ transform:rotate(0deg); }
+    50%{ transform:rotate(90deg); }
+  }
+  @media (orientation:portrait){
+    #app{ display:none; }
+    #rotateOverlay{ display:flex; }
+  }
+  /* ---- Landscape layout: side rail (left) + game (right) ---- */
+  #sideRail{
+    flex:0 0 168px;
+    display:flex; flex-direction:column;
+    padding:8px 6px;
+    overflow-y:auto;
+    border-right:2px solid var(--wood);
+    background:linear-gradient(180deg,#fff8ec,#f3ead6);
+  }
+  h1{
+    font-family:'Baloo 2',cursive;
+    font-size:16px;
+    margin:2px 0 6px;
+    color:var(--wood-dark);
+    text-align:center;
+    line-height:1.15;
+  }
+  .pill{
+    font-family:'Baloo 2',cursive;
+    background:var(--cream);
+    border:2px solid var(--wood);
+    border-radius:12px;
+    padding:5px 8px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--wood-dark);
+    box-shadow:0 2px 0 rgba(0,0,0,0.08);
+    white-space:nowrap;
+    margin-bottom:6px;
+    text-align:center;
+  }
+  #expandBtn{
+    font-family:'Baloo 2',cursive;
+    font-weight:700;
+    font-size:12px;
+    background:linear-gradient(135deg,#e8973a,#c9556f);
+    color:#fff;
+    border:2px solid var(--wood-dark);
+    border-radius:12px;
+    padding:6px 6px;
+    margin-bottom:8px;
+    cursor:pointer;
+    box-shadow:0 2px 0 rgba(0,0,0,0.15);
+  }
+  #expandBtn:active{ transform:translateY(2px); box-shadow:none; }
+  #expandBtn:disabled{ opacity:0.55; cursor:not-allowed; }
+  #staffBtn{
+    font-family:'Baloo 2',cursive;
+    font-weight:700;
+    font-size:11.5px;
+    background:linear-gradient(135deg,#4a6fa5,#5c8a52);
+    color:#fff;
+    border:2px solid var(--wood-dark);
+    border-radius:12px;
+    padding:6px 6px;
+    margin-bottom:8px;
+    cursor:pointer;
+    box-shadow:0 2px 0 rgba(0,0,0,0.15);
+  }
+  #staffBtn:active{ transform:translateY(2px); box-shadow:none; }
+  #staffBtn:disabled{ opacity:0.55; cursor:not-allowed; }
+  #palette{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    margin-bottom:8px;
+  }
+  .item-btn{
+    font-family:'Baloo 2',cursive;
+    border:2px solid var(--wood);
+    background:var(--cream);
+    border-radius:12px;
+    padding:5px 6px;
+    display:flex; align-items:center; gap:6px;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:0 2px 0 rgba(0,0,0,0.1);
+    user-select:none;
+  }
+  .item-btn:active{transform:translateY(2px); box-shadow:none;}
+  .item-btn.selected{
+    background:var(--accent);
+    border-color:var(--accent-dark);
+    color:#fff;
+    box-shadow:0 3px 0 var(--accent-dark);
+  }
+  .item-emoji{font-size:19px; line-height:1;}
+  .item-cost{font-size:11px; font-weight:700;}
+  #hint{
+    text-align:center;
+    font-size:11px;
+    color:#7a6a56;
+    margin-top:auto;
+    padding-top:6px;
+    min-height:14px;
+  }
+  /* ---- Game area ---- */
+  #gameArea{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+  }
+  #canvasWrap{
+    flex:1;
+    position:relative;
+    margin:8px;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 3px var(--wood-dark);
+    touch-action:none;
+  }
+  canvas{
+    display:block;
+    width:100%;
+    height:100%;
+  }
+  #toastLayer{
+    position:absolute;top:0;left:0;right:0;bottom:0;
+    pointer-events:none;
+  }
+  .toast{
+    position:absolute;
+    font-family:'Baloo 2',cursive;
+    font-weight:700;
+    font-size:14px;
+    padding:4px 10px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.92);
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+    transform:translate(-50%,-50%);
+    animation:floatUp 1.1s ease-out forwards;
+  }
+  @keyframes floatUp{
+    0%{opacity:0; transform:translate(-50%,-50%) translateY(0) scale(0.8);}
+    15%{opacity:1; transform:translate(-50%,-50%) translateY(-6px) scale(1);}
+    100%{opacity:0; transform:translate(-50%,-50%) translateY(-46px) scale(1);}
+  }
+  #zoomHint{
+    position:absolute;
+    bottom:8px; right:10px;
+    font-size:11px;
+    color:#7a6a56;
+    background:rgba(255,255,255,0.7);
+    padding:3px 8px;
+    border-radius:8px;
+    pointer-events:none;
+  }
+  #moneyBadge{
+    position:absolute;
+    top:10px; right:10px;
+    font-family:'Baloo 2',cursive;
+    font-weight:800;
+    font-size:16px;
+    background:var(--cream);
+    border:2px solid var(--wood);
+    color:var(--wood-dark);
+    padding:6px 12px;
+    border-radius:999px;
+    box-shadow:0 3px 0 rgba(0,0,0,0.15);
+    z-index:40;
+    pointer-events:none;
+    transition:transform .15s ease;
+  }
+  #moneyBadge.pulse{
+    animation:moneyPulse .4s ease;
+  }
+  @keyframes moneyPulse{
+    0%{ transform:scale(1); }
+    50%{ transform:scale(1.16); box-shadow:0 0 0 7px rgba(74,140,88,0.25), 0 3px 0 rgba(0,0,0,0.15); }
+    100%{ transform:scale(1); }
+  }
+  #levelBanner{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:6px;
+    background:rgba(30,20,12,0.45);
+    opacity:0; pointer-events:none;
+    transition:opacity .35s ease;
+    z-index:50;
+    text-align:center;
+    padding:20px;
+  }
+  #levelBanner.show{ opacity:1; }
+  .lb-title{
+    font-family:'Baloo 2',cursive;
+    font-weight:800;
+    font-size:26px;
+    color:#fff;
+    text-shadow:0 2px 6px rgba(0,0,0,0.4);
+    animation:popIn .5s ease;
+  }
+  .lb-sub{
+    font-family:'Baloo 2',cursive;
+    font-weight:700;
+    font-size:14px;
+    color:#fbf3e3;
+    text-shadow:0 1px 4px rgba(0,0,0,0.4);
+  }
+  @keyframes popIn{
+    0%{ transform:scale(0.6); opacity:0; }
+    60%{ transform:scale(1.08); opacity:1; }
+    100%{ transform:scale(1); }
+  }
+  #levelPill{ line-height:1.25; }
+  #levelPill .theme-name{ font-size:10px; font-weight:700; opacity:0.85; }
+  #standPanel{
+    display:none;
+    position:absolute;
+    left:50%;
+    bottom:12px;
+    transform:translateX(-50%);
+    width:min(92%, 460px);
+    max-height:calc(100% - 24px);
+    overflow-y:auto;
+    background:rgba(251,243,227,0.98);
+    border:2px solid var(--wood);
+    border-radius:14px;
+    padding:8px 10px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.28);
+    z-index:45;
+  }
+  #standPanel.open{ display:block; }
+  #spTitle{
+    font-family:'Baloo 2',cursive;
+    font-weight:700;
+    font-size:14px;
+    color:var(--wood-dark);
+    text-align:center;
+    margin-bottom:6px;
+  }
+  #spLevelBar{
+    display:flex;
+    gap:2px;
+    justify-content:center;
+    margin-bottom:6px;
+  }
+  .lvl-seg{
+    width:16px; height:6px; border-radius:3px;
+    background:#e3d8c2;
+  }
+  .lvl-seg.filled{ background:var(--accent); }
+  #spButtons{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  #spButtons button{
+    font-family:'Baloo 2',cursive;
+    font-weight:700;
+    font-size:12.5px;
+    border:2px solid var(--wood);
+    background:#fff;
+    color:var(--wood-dark);
+    border-radius:10px;
+    padding:6px 10px;
+    cursor:pointer;
+    box-shadow:0 2px 0 rgba(0,0,0,0.1);
+  }
+  #spButtons button:active{ transform:translateY(2px); box-shadow:none; }
+  #spButtons button:disabled{ opacity:0.5; cursor:not-allowed; }
+  #spButtons button.merge-btn{
+    background:linear-gradient(135deg,#c9556f,#8a5fc9);
+    color:#fff;
+    border-color:#6b3e7a;
+  }
+  #spButtons button.close-btn{
+    background:var(--wood-dark);
+    color:#fff;
+  }
+</style>
+</head>
+<body>
+<div id="splashScreen">
+  <div class="splash-content">
+    <div class="splash-icon">🧺</div>
+    <h1 class="splash-title">Market<span class="plus">+</span></h1>
+    <p class="splash-sub">Construis ton marché de fruits exotiques</p>
+    <button id="resumeBtn" class="splash-btn primary">▶️ Reprendre la partie</button>
+    <button id="newGameBtn" class="splash-btn">🆕 Nouvelle partie</button>
+  </div>
+</div>
+
+<div id="rotateOverlay">
+  <div class="icon">🔄</div>
+  <div>Tourne ton téléphone<br>pour jouer en mode paysage 📱</div>
+</div>
+
+<div id="app">
+  <div id="sideRail">
+    <h1>🧺 Mon Petit Marché</h1>
+    <div class="pill">💰 <span id="money">30</span> €</div>
+    <div class="pill">🏪 <span id="standCount">0</span> stand(s)</div>
+    <div class="pill">😊 <span id="happyCount">0</span> ventes</div>
+    <div class="pill" id="levelPill">🗺️ Niveau <span id="worldLevelNum">1</span><br><span class="theme-name" id="themeNameEl">Marché</span></div>
+    <div class="pill">🏁 <span id="progressText">0/1000</span> €</div>
+    <div class="pill">👷 <span id="staffCountText">0</span> employé(s)</div>
+    <button id="expandBtn">🏗️ Agrandir</button>
+    <button id="staffBtn">👷 Employé</button>
+    <div id="palette"></div>
+    <div id="hint">Choisis un fruit, puis touche une case du marché.</div>
+  </div>
+
+  <div id="gameArea">
+    <div id="canvasWrap">
+      <canvas id="game"></canvas>
+      <div id="toastLayer"></div>
+      <div id="zoomHint">🤏 Pince pour zoomer</div>
+      <div id="levelBanner"></div>
+      <div id="moneyBadge">💰 <span id="moneyBadgeValue">30</span> €</div>
+      <div id="standPanel">
+        <div id="spTitle"></div>
+        <div id="spLevelBar"></div>
+        <div id="spButtons"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  try{
+    if(screen.orientation && screen.orientation.lock){
+      screen.orientation.lock('landscape').catch(()=>{});
+    }
+  }catch(e){}
+
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const wrap = document.getElementById('canvasWrap');
+  const toastLayer = document.getElementById('toastLayer');
+  const moneyEl = document.getElementById('money');
+  const standCountEl = document.getElementById('standCount');
+  const happyCountEl = document.getElementById('happyCount');
+  const paletteEl = document.getElementById('palette');
+  const hintEl = document.getElementById('hint');
+  const expandBtnEl = document.getElementById('expandBtn');
+  const staffBtnEl = document.getElementById('staffBtn');
+  const staffCountTextEl = document.getElementById('staffCountText');
+  const worldLevelNumEl = document.getElementById('worldLevelNum');
+  const themeNameEl = document.getElementById('themeNameEl');
+  const progressTextEl = document.getElementById('progressText');
+  const levelBannerEl = document.getElementById('levelBanner');
+  const moneyBadgeValueEl = document.getElementById('moneyBadgeValue');
+  const moneyBadgeEl = document.getElementById('moneyBadge');
+
+  // ---- Logical canvas size (internal resolution, landscape) ----
+  const W = 900, H = 480;
+  canvas.width = W; canvas.height = H;
+  // Note: the canvas's on-screen size is handled purely by CSS (width:100%; height:100%
+  // on the canvas element, inside the flex-sized #canvasWrap). We intentionally do NOT
+  // set canvas.style.width/height from a one-time JS measurement here: measuring
+  // wrap.getBoundingClientRect() too early (before fonts/layout settle) previously
+  // locked the canvas to a stale, too-small size with no later event to correct it,
+  // leaving a blank gap below the game. CSS percentage sizing stays correct live.
+
+  function clientToCanvasPx(clientX, clientY){
+    const rect = canvas.getBoundingClientRect();
+    const x = (clientX - rect.left) / rect.width * W;
+    const y = (clientY - rect.top) / rect.height * H;
+    return {x,y};
+  }
+
+  // =========================================================
+  // ---- Camera (pan + pinch-zoom) ----
+  // =========================================================
+  const camera = {zoom:0.85, x:W/2, y:H/2};
+  const MIN_ZOOM = 0.35, MAX_ZOOM = 2.2;
+  let cameraAnim = null; // {from:{zoom,x,y}, to:{...}, t:0, dur}
+
+  function worldToScreenPx(wx,wy){
+    return { x:(wx-camera.x)*camera.zoom + W/2, y:(wy-camera.y)*camera.zoom + H/2 };
+  }
+  function screenPxToWorld(sx,sy){
+    return { x:(sx-W/2)/camera.zoom + camera.x, y:(sy-H/2)/camera.zoom + camera.y };
+  }
+  function easeOutCubic(t){ return 1-Math.pow(1-t,3); }
+
+  function animateCameraTo(target, dur){
+    cameraAnim = { from:{zoom:camera.zoom,x:camera.x,y:camera.y}, to:target, t:0, dur:dur||0.7 };
+  }
+
+  // ---- pinch-to-zoom / pan touch handling ----
+  let touchState = null; // {mode:'pinch'|'pan', ...}
+  function touchDist(t0,t1){ return Math.hypot(t0.clientX-t1.clientX, t0.clientY-t1.clientY); }
+  function touchMid(t0,t1){ return {x:(t0.clientX+t1.clientX)/2, y:(t0.clientY+t1.clientY)/2}; }
+
+  wrap.addEventListener('touchstart', (e)=>{
+    if(e.touches.length===2){
+      cameraAnim = null;
+      const mid = touchMid(e.touches[0], e.touches[1]);
+      const midCanvas = clientToCanvasPx(mid.x, mid.y);
+      touchState = {
+        mode:'pinch',
+        startDist: touchDist(e.touches[0], e.touches[1]),
+        startZoom: camera.zoom,
+        anchorWorld: screenPxToWorld(midCanvas.x, midCanvas.y)
+      };
+    }
+  }, {passive:true});
+
+  wrap.addEventListener('touchmove', (e)=>{
+    if(touchState && touchState.mode==='pinch' && e.touches.length===2){
+      e.preventDefault();
+      const dist = touchDist(e.touches[0], e.touches[1]);
+      const ratio = dist / touchState.startDist;
+      let newZoom = touchState.startZoom * ratio;
+      newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
+      camera.zoom = newZoom;
+      const mid = touchMid(e.touches[0], e.touches[1]);
+      const midCanvas = clientToCanvasPx(mid.x, mid.y);
+      camera.x = touchState.anchorWorld.x - (midCanvas.x - W/2)/camera.zoom;
+      camera.y = touchState.anchorWorld.y - (midCanvas.y - H/2)/camera.zoom;
+    }
+  }, {passive:false});
+
+  wrap.addEventListener('touchend', (e)=>{
+    if(e.touches.length<2) touchState = null;
+  }, {passive:true});
+
+  // desktop wheel zoom (nice-to-have)
+  wrap.addEventListener('wheel', (e)=>{
+    e.preventDefault();
+    cameraAnim = null;
+    const p = clientToCanvasPx(e.clientX, e.clientY);
+    const worldBefore = screenPxToWorld(p.x,p.y);
+    const factor = e.deltaY<0 ? 1.1 : 0.9;
+    camera.zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, camera.zoom*factor));
+    camera.x = worldBefore.x - (p.x-W/2)/camera.zoom;
+    camera.y = worldBefore.y - (p.y-H/2)/camera.zoom;
+  }, {passive:false});
+
+  // =========================================================
+  // ---- Isometric grid (3/4 view), expandable ----
+  // =========================================================
+  let GRID_COLS = 5, GRID_ROWS = 4;
+  const MAX_COLS = 9, MAX_ROWS = 7;
+  const TILE_W = 124, TILE_H = 62;
+  const ORIGIN_X = 0, ORIGIN_Y = 0; // world origin anchors the building's back corner
+  const WALL_H_BASE = 78, TURRET_EXTRA = 20;
+  function wallH(){ return WALL_H_BASE * currentTheme().wallHeightMul; }
+  function topExtra(){
+    const theme = currentTheme();
+    if(!theme.hasBuilding) return 70+26+12;
+    return wallH() + TURRET_EXTRA + 16;
+  }
+
+  function isoToScreen(col,row){
+    return {
+      x: ORIGIN_X + (col-row)*(TILE_W/2),
+      y: ORIGIN_Y + (col+row)*(TILE_H/2)
+    };
+  }
+  function tileCenter(col,row){ return isoToScreen(col+0.5, row+0.5); }
+  function floorFrontY(){ return ORIGIN_Y + (GRID_COLS+GRID_ROWS)*(TILE_H/2); }
+  function tileFromWorld(x,y){
+    const dx = x-ORIGIN_X, dy = y-ORIGIN_Y;
+    const a = dx/(TILE_W/2), b = dy/(TILE_H/2);
+    const colF = (a+b)/2, rowF = (b-a)/2;
+    return {col:Math.floor(colF), row:Math.floor(rowF)};
+  }
+  function inBounds(col,row){
+    return col>=0 && col<GRID_COLS && row>=0 && row<GRID_ROWS;
+  }
+  function sceneBounds(){
+    const topPt = isoToScreen(0,0);
+    const minX = isoToScreen(0,GRID_ROWS).x - 38;
+    const maxX = isoToScreen(GRID_COLS,0).x + 14;
+    const minY = topPt.y - topExtra();
+    const maxY = floorFrontY() + 18;
+    return {minX,maxX,minY,maxY};
+  }
+  function fitCamera(dur){
+    const b = sceneBounds();
+    const cx = (b.minX+b.maxX)/2, cy = (b.minY+b.maxY)/2;
+    const zx = W/(b.maxX-b.minX), zy = H/(b.maxY-b.minY);
+    const z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Math.min(zx,zy)));
+    animateCameraTo({zoom:z, x:cx, y:cy}, dur);
+  }
+
+  // =========================================================
+  // ---- Levels / world themes (decor changes each level) ----
+  // =========================================================
+  const THEMES = [
+    { key:'marche', label:'Marché', sky:['#bfe9e6','#eef7e6'],
+      floorA:'#e7c99a', floorB:'#dcb989',
+      wallA:'#c98a63', wallB:'#b8754e', wallWin:'#eaf6ef',
+      signBg:'#8a5a3c', signBg2:'#a9764f', signText:'🧺 MARCHÉ',
+      roofAccent:'#c9556f', hasBuilding:true, wallHeightMul:1, stripes:false },
+    { key:'parc', label:'Parc', sky:['#bfe3f5','#eaf6e0'],
+      floorA:'#8fc36a', floorB:'#7db558',
+      wallA:null, wallB:null, wallWin:null,
+      signBg:'#4a7a34', signBg2:'#6fae5a', signText:'🌳 PARC',
+      roofAccent:'#4a7a34', hasBuilding:false, wallHeightMul:1, stripes:false },
+    { key:'mall', label:'Centre Commercial', sky:['#dbe6f5','#f3eef7'],
+      floorA:'#eae5df', floorB:'#d8d2c8',
+      wallA:'#a7c4d9', wallB:'#8fb0c9', wallWin:'#eef6fb',
+      signBg:'#4a6fa5', signBg2:'#6f93c9', signText:'🛍️ CENTRE COMMERCIAL',
+      roofAccent:'#4a6fa5', hasBuilding:true, wallHeightMul:1.15, stripes:false },
+    { key:'parking', label:'Parking', sky:['#c7cdd6','#e7e9ec'],
+      floorA:'#8a8f96', floorB:'#797e85',
+      wallA:'#9aa0a6', wallB:'#83898f', wallWin:'#cfd6dc',
+      signBg:'#4a5568', signBg2:'#6b7280', signText:'🅿️ PARKING',
+      roofAccent:'#4a5568', hasBuilding:true, wallHeightMul:0.55, stripes:true },
+  ];
+  let worldLevel = 1;
+  let levelTransitioning = false;
+  function currentTheme(){ return THEMES[(worldLevel-1) % THEMES.length]; }
+
+  // ---- Items (mostly exotic fruit) ----
+  const ITEMS = [
+    {id:'mangue',   emoji:'🥭', cost:2, price:5, initStock:5},
+    {id:'ananas',   emoji:'🍍', cost:3, price:6, initStock:5},
+    {id:'coco',     emoji:'🥥', cost:3, price:6, initStock:5},
+    {id:'kiwi',     emoji:'🥝', cost:2, price:4, initStock:5},
+    {id:'banane',   emoji:'🍌', cost:1, price:3, initStock:5},
+    {id:'avocat',   emoji:'🥑', cost:2, price:5, initStock:5},
+    {id:'melon',    emoji:'🍈', cost:2, price:5, initStock:5},
+    {id:'pasteque', emoji:'🍉', cost:2, price:4, initStock:5},
+    {id:'raisin',   emoji:'🍇', cost:2, price:4, initStock:5},
+    {id:'peche',    emoji:'🍑', cost:2, price:5, initStock:5},
+    {id:'mandarine',emoji:'🍊', cost:1, price:3, initStock:5},
+    {id:'fraise',   emoji:'🍓', cost:3, price:6, initStock:5},
+    {id:'litchi',   emoji:'🫐', cost:3, price:7, initStock:5},
+  ];
+  const ITEM_NAMES = {
+    mangue:'Mangue', ananas:'Ananas', coco:'Coco', kiwi:'Kiwi', banane:'Banane', avocat:'Avocat',
+    melon:'Melon', pasteque:'Pastèque', raisin:'Raisin', peche:'Pêche', mandarine:'Mandarine',
+    fraise:'Fraise', litchi:'Litchi'
+  };
+  const BUILD_COST = 8;
+  const MAX_LEVEL = 10;
+  const MERGE_COST = 25;
+  const MERGE_MIN_LEVEL = 3;
+  let selectedItem = null;
+
+  const standPanelEl = document.getElementById('standPanel');
+  const spTitleEl = document.getElementById('spTitle');
+  const spLevelBarEl = document.getElementById('spLevelBar');
+  const spButtonsEl = document.getElementById('spButtons');
+
+  function buildPalette(){
+    paletteEl.innerHTML = '';
+    ITEMS.forEach(item=>{
+      const total = BUILD_COST + item.cost*item.initStock;
+      const btn = document.createElement('div');
+      btn.className = 'item-btn';
+      btn.dataset.id = item.id;
+      btn.innerHTML = `<div class="item-emoji">${item.emoji}</div><div class="item-cost">${total}€</div>`;
+      btn.addEventListener('click', ()=>{
+        cancelMerge();
+        closeStandPanel();
+        if(selectedItem === item.id){
+          selectedItem = null;
+        } else {
+          selectedItem = item.id;
+        }
+        refreshPalette();
+        hintEl.textContent = selectedItem
+          ? "Touche une case libre du marché."
+          : "Choisis un fruit, puis touche une case du marché.";
+      });
+      paletteEl.appendChild(btn);
+    });
+  }
+  function refreshPalette(){
+    [...paletteEl.children].forEach(btn=>{
+      btn.classList.toggle('selected', btn.dataset.id === selectedItem);
+    });
+  }
+  buildPalette();
+
+  // ---- Game state ----
+  let money = 30;
+  let gameStarted = false;
+  let sales = 0;
+  let stands = [];
+  let customers = [];
+  let time = 0;
+  let expansions = 0;
+  let passiveTimer = 0;
+  const PASSIVE_INCOME_INTERVAL = 5;
+  let staffCount = 0;
+  let staffTimer = 0;
+  const STAFF_COST = 200;
+  const STAFF_TICK_INTERVAL = 10;
+  const STAFF_MIN_STAND_LEVEL = 5;
+  const LEVEL_UP_BASE_MONEY = 1000;
+  function levelUpTarget(){ return LEVEL_UP_BASE_MONEY * Math.pow(2, worldLevel-1); }
+
+  function eligibleStaffStandsCount(){
+    return stands.filter(s=>s.level>=STAFF_MIN_STAND_LEVEL).length;
+  }
+  function requiredStandsForNextStaff(){ return (staffCount+1)*2; }
+
+  function standScale(s){ return 1 + (s.level-1)*0.045; }
+  function maxStockFor(s){ return 5 + (s.level-1)*2; }
+  function priceFor(s){ return s.basePrice + Math.floor((s.level-1)/2) + (s.isMagic?2:0); }
+  function upgradeCostFor(s){ return 12 + s.level*10; }
+  function restockCostPerUnit(s){ return s.baseCost/2; }
+  function expandCost(){ return 120 + expansions*90; }
+
+  function updateHud(){
+    moneyEl.textContent = money;
+    moneyBadgeValueEl.textContent = money;
+    standCountEl.textContent = stands.length;
+    happyCountEl.textContent = sales;
+    const maxed = GRID_COLS>=MAX_COLS && GRID_ROWS>=MAX_ROWS;
+    expandBtnEl.textContent = maxed ? '🏗️ Taille max' : `🏗️ Agrandir (${expandCost()}€)`;
+    expandBtnEl.disabled = maxed;
+    worldLevelNumEl.textContent = worldLevel;
+    themeNameEl.textContent = currentTheme().label;
+    progressTextEl.textContent = `${Math.min(money,levelUpTarget())}/${levelUpTarget()}`;
+    staffCountTextEl.textContent = staffCount;
+    const elig = eligibleStaffStandsCount();
+    const req = requiredStandsForNextStaff();
+    if(elig < req){
+      staffBtnEl.textContent = `👷 Employé (${elig}/${req} niv.${STAFF_MIN_STAND_LEVEL}+)`;
+      staffBtnEl.disabled = true;
+    } else {
+      staffBtnEl.textContent = `👷 Employé n°${staffCount+1} (${STAFF_COST}€)`;
+      staffBtnEl.disabled = false;
+    }
+    saveGame();
+  }
+  updateHud();
+
+  staffBtnEl.addEventListener('click', ()=>{
+    if(eligibleStaffStandsCount() < requiredStandsForNextStaff()) return;
+    if(money < STAFF_COST){
+      hintEl.textContent = "Pas assez d'argent pour engager un employé !";
+      return;
+    }
+    money -= STAFF_COST;
+    staffCount++;
+    hintEl.textContent = `Employé engagé ! Il réapprovisionne les stands niveau ${STAFF_MIN_STAND_LEVEL}+ automatiquement.`;
+    updateHud();
+  });
+
+  expandBtnEl.addEventListener('click', ()=>{
+    const maxed = GRID_COLS>=MAX_COLS && GRID_ROWS>=MAX_ROWS;
+    if(maxed) return;
+    const cost = expandCost();
+    if(money < cost){
+      hintEl.textContent = "Pas assez d'argent pour agrandir le marché !";
+      return;
+    }
+    money -= cost;
+    expansions++;
+    if(expansions % 2 === 1 && GRID_COLS<MAX_COLS) GRID_COLS++;
+    else if(GRID_ROWS<MAX_ROWS) GRID_ROWS++;
+    else if(GRID_COLS<MAX_COLS) GRID_COLS++;
+    hintEl.textContent = "Le marché s'agrandit ! 🏗️";
+    fitCamera(0.9);
+    updateHud();
+  });
+
+  function showToast(wx, wy, text, color){
+    const p = worldToScreenPx(wx,wy);
+    const rect = canvas.getBoundingClientRect();
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.style.color = color || '#3c2a1e';
+    el.style.left = (p.x/W*rect.width) + 'px';
+    el.style.top = (p.y/H*rect.height) + 'px';
+    el.textContent = text;
+    toastLayer.appendChild(el);
+    setTimeout(()=> el.remove(), 1150);
+  }
+
+  function pulseMoneyBadge(){
+    moneyBadgeEl.classList.remove('pulse');
+    void moneyBadgeEl.offsetWidth; // restart animation
+    moneyBadgeEl.classList.add('pulse');
+  }
+
+  function showLevelBanner(title, sub){
+    levelBannerEl.innerHTML = `<div class="lb-title">${title}</div><div class="lb-sub">${sub}</div>`;
+    levelBannerEl.classList.add('show');
+    setTimeout(()=> levelBannerEl.classList.remove('show'), 2100);
+  }
+
+  function checkLevelCompletion(){
+    if(levelTransitioning) return;
+    const target = levelUpTarget();
+    if(money < target) return;
+    levelTransitioning = true;
+    money -= target;
+    updateHud();
+    const nextTheme = THEMES[worldLevel % THEMES.length];
+    showLevelBanner(`🎉 Niveau ${worldLevel} terminé !`, `Déménagement (-${target}€) — cap sur : ${nextTheme.label} !`);
+    setTimeout(()=>{
+      worldLevel++;
+      GRID_COLS = 5; GRID_ROWS = 4; expansions = 0;
+      stands = []; customers = [];
+      selectedStand = null; mergeFirst = null; mode = 'idle';
+      closeStandPanel();
+      levelTransitioning = false;
+      fitCamera(0.9);
+      updateHud();
+      hintEl.textContent = `Bienvenue au niveau ${worldLevel} : ${currentTheme().label} !`;
+    }, 2200);
+  }
+
+  function itemColor(id){
+    switch(id){
+      case 'mangue': return '#f0954a';
+      case 'ananas': return '#e8b23a';
+      case 'coco': return '#a9764f';
+      case 'kiwi': return '#8bc34a';
+      case 'banane': return '#f6e27a';
+      case 'avocat': return '#5c8a52';
+      case 'melon': return '#c9d96a';
+      case 'pasteque': return '#e0554f';
+      case 'raisin': return '#8a5fc9';
+      case 'peche': return '#f2a08a';
+      case 'mandarine': return '#f0902a';
+      case 'fraise': return '#e0455a';
+      case 'litchi': return '#7aa8d9';
+      default: return '#e8973a';
+    }
+  }
+
+  function roundRect(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+  function poly(ctx, pts){
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.closePath();
+  }
+  function centroid(pts){
+    let x=0,y=0; pts.forEach(p=>{x+=p.x;y+=p.y;});
+    return {x:x/pts.length, y:y/pts.length};
+  }
+  function insetQuad(pts, t){
+    const c = centroid(pts);
+    return pts.map(p=>({x:p.x+(c.x-p.x)*t, y:p.y+(c.y-p.y)*t}));
+  }
+  function shade(hex, amt){
+    const c = parseInt(hex.slice(1),16);
+    let r=(c>>16)&255, g=(c>>8)&255, b=c&255;
+    r=Math.max(0,Math.min(255,r+amt)); g=Math.max(0,Math.min(255,g+amt)); b=Math.max(0,Math.min(255,b+amt));
+    return `rgb(${r},${g},${b})`;
+  }
+
+  function findStandAt(col,row){
+    return stands.find(s=> s.col===col && s.row===row) || null;
+  }
+
+  // =========================================================
+  // ---- Input handling (single-finger tap = build/select) ----
+  // =========================================================
+  let pendingTapStart = null;
+  canvas.addEventListener('pointerdown', (e)=>{
+    if(e.pointerType==='touch' && touchState) return;
+    pendingTapStart = {x:e.clientX, y:e.clientY, t:performance.now()};
+  });
+  canvas.addEventListener('pointerup', (e)=>{
+    if(!pendingTapStart) return;
+    const moved = Math.hypot(e.clientX-pendingTapStart.x, e.clientY-pendingTapStart.y);
+    const dt = performance.now()-pendingTapStart.t;
+    pendingTapStart = null;
+    if(moved<10 && dt<600){
+      const p = clientToCanvasPx(e.clientX, e.clientY);
+      const world = screenPxToWorld(p.x,p.y);
+      handleTap(world.x, world.y);
+    }
+  });
+
+  let mode = 'idle'; // 'idle' | 'merging'
+  let selectedStand = null;
+  let mergeFirst = null;
+
+  function handleTap(x,y){
+    const {col,row} = tileFromWorld(x,y);
+    if(!inBounds(col,row)){
+      if(mode!=='merging') closeStandPanel();
+      return;
+    }
+    const stand = findStandAt(col,row);
+    if(stand){
+      if(mode === 'merging'){
+        handleMergeTap(stand);
+      } else {
+        selectedItem = null;
+        refreshPalette();
+        openStandPanel(stand);
+      }
+      return;
+    }
+    if(mode === 'merging') return;
+    if(selectedItem){
+      tryPlaceStand(col,row);
+      return;
+    }
+    closeStandPanel();
+  }
+
+  function tryPlaceStand(col,row){
+    const item = ITEMS.find(i=>i.id===selectedItem);
+    const cost = BUILD_COST + item.cost*item.initStock;
+    const c = tileCenter(col,row);
+    if(money < cost){
+      hintEl.textContent = "Pas assez d'argent pour ce stand !";
+      showToast(c.x, c.y-70, "Pas assez d'argent 😕", '#c1443d');
+      return;
+    }
+    money -= cost;
+    stands.push({
+      col, row, x:c.x, y:c.y,
+      id: item.id,
+      emoji: item.emoji,
+      name: ITEM_NAMES[item.id],
+      level: 1,
+      basePrice: item.price,
+      baseCost: item.cost,
+      stock: item.initStock,
+      isMagic: false,
+      colorA: itemColor(item.id),
+      colorB: null,
+      bob: Math.random()*Math.PI*2
+    });
+    showToast(c.x, c.y-70, "Nouveau stand ! 🎉", '#4a8c58');
+    selectedItem = null;
+    refreshPalette();
+    hintEl.textContent = "Touche un stand pour le gérer.";
+    updateHud();
+  }
+
+  function tryRestock(s){
+    const missing = maxStockFor(s) - s.stock;
+    if(missing <= 0){
+      showToast(s.x, s.y-90, "Stand plein !", '#4a8c58');
+      return;
+    }
+    const cost = Math.max(1, Math.round(missing * restockCostPerUnit(s)));
+    if(money < cost){
+      showToast(s.x, s.y-90, "Pas assez d'argent 😕", '#c1443d');
+      return;
+    }
+    money -= cost;
+    s.stock = maxStockFor(s);
+    showToast(s.x, s.y-90, `Réappro. -${cost}€`, '#c9762a');
+    sendOwnerTo(s.x, s.y+18);
+    updateHud();
+    renderStandPanel(s);
+  }
+
+  function tryUpgrade(s){
+    if(s.level >= MAX_LEVEL){
+      showToast(s.x, s.y-90, "Niveau maximum !", '#4a8c58');
+      return;
+    }
+    const cost = upgradeCostFor(s);
+    if(money < cost){
+      showToast(s.x, s.y-90, "Pas assez d'argent 😕", '#c1443d');
+      return;
+    }
+    money -= cost;
+    s.level++;
+    showToast(s.x, s.y-100, `Niveau ${s.level} ! ⭐`, '#c9762a');
+    sendOwnerTo(s.x, s.y+18);
+    updateHud();
+    renderStandPanel(s);
+    checkLevelCompletion();
+  }
+
+  function cancelMerge(){
+    mergeFirst = null;
+    mode = 'idle';
+  }
+
+  function handleMergeTap(stand){
+    if(stand.isMagic){
+      showToast(stand.x, stand.y-90, "Déjà magique ! ✨", '#8a5fc9');
+      return;
+    }
+    if(stand.level < MERGE_MIN_LEVEL){
+      showToast(stand.x, stand.y-90, `Niveau ${MERGE_MIN_LEVEL}+ requis`, '#c1443d');
+      return;
+    }
+    if(!mergeFirst){
+      mergeFirst = stand;
+      hintEl.textContent = `Touche un second stand (niveau ${MERGE_MIN_LEVEL}+) pour fusionner. Retouche-le pour annuler.`;
+      return;
+    }
+    if(stand === mergeFirst){
+      cancelMerge();
+      hintEl.textContent = "Fusion annulée.";
+      return;
+    }
+    doMerge(mergeFirst, stand);
+  }
+
+  function doMerge(a, b){
+    if(money < MERGE_COST){
+      showToast(a.x, a.y-100, "Pas assez d'argent 😕", '#c1443d');
+      return;
+    }
+    money -= MERGE_COST;
+    const c = tileCenter(a.col, a.row);
+    const magicStand = {
+      col:a.col, row:a.row, x:c.x, y:c.y,
+      id: a.id+'_'+b.id,
+      emoji: a.emoji+b.emoji,
+      name: `${a.name}-${b.name} Magique`,
+      level: 1,
+      basePrice: a.basePrice + b.basePrice + 4,
+      baseCost: a.baseCost + b.baseCost,
+      stock: 5,
+      isMagic: true,
+      colorA: a.colorA,
+      colorB: b.colorA,
+      bob: Math.random()*Math.PI*2
+    };
+    stands = stands.filter(s=> s!==a && s!==b);
+    stands.push(magicStand);
+    cancelMerge();
+    closeStandPanel();
+    showToast(c.x, c.y-100, "✨ Fusion réussie ! ✨", '#8a5fc9');
+    hintEl.textContent = "Un stand magique est né !";
+    updateHud();
+  }
+
+  function openStandPanel(stand){
+    selectedStand = stand;
+    mode = 'idle';
+    standPanelEl.classList.add('open');
+    renderStandPanel(stand);
+  }
+  function closeStandPanel(){
+    selectedStand = null;
+    standPanelEl.classList.remove('open');
+  }
+
+  function renderStandPanel(stand){
+    if(selectedStand !== stand) return;
+    const missing = maxStockFor(stand) - stand.stock;
+    const restockCost = Math.max(1, Math.round(missing * restockCostPerUnit(stand)));
+    const upgradeCost = upgradeCostFor(stand);
+    const maxed = stand.level >= MAX_LEVEL;
+
+    spTitleEl.textContent = `${stand.emoji} ${stand.name} — Niveau ${stand.level}/${MAX_LEVEL}`;
+
+    spLevelBarEl.innerHTML = '';
+    for(let i=1;i<=MAX_LEVEL;i++){
+      const seg = document.createElement('div');
+      seg.className = 'lvl-seg' + (i<=stand.level ? ' filled' : '');
+      spLevelBarEl.appendChild(seg);
+    }
+
+    spButtonsEl.innerHTML = '';
+
+    const restockBtn = document.createElement('button');
+    restockBtn.textContent = missing<=0 ? 'Stock plein' : `Réappro. (${restockCost}€)`;
+    restockBtn.disabled = missing<=0;
+    restockBtn.addEventListener('click', ()=> tryRestock(stand));
+    spButtonsEl.appendChild(restockBtn);
+
+    const upgradeBtn = document.createElement('button');
+    upgradeBtn.textContent = maxed ? 'Niveau max' : `Améliorer (${upgradeCost}€)`;
+    upgradeBtn.disabled = maxed;
+    upgradeBtn.addEventListener('click', ()=> tryUpgrade(stand));
+    spButtonsEl.appendChild(upgradeBtn);
+
+    if(!stand.isMagic && stand.level >= MERGE_MIN_LEVEL){
+      const mergeBtn = document.createElement('button');
+      mergeBtn.className = 'merge-btn';
+      mergeBtn.textContent = `🔗 Fusionner (${MERGE_COST}€)`;
+      mergeBtn.addEventListener('click', ()=>{
+        mode = 'merging';
+        mergeFirst = stand;
+        closeStandPanel();
+        hintEl.textContent = `Touche un second stand (niveau ${MERGE_MIN_LEVEL}+) pour fusionner.`;
+      });
+      spButtonsEl.appendChild(mergeBtn);
+    }
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'close-btn';
+    closeBtn.textContent = 'Fermer';
+    closeBtn.addEventListener('click', closeStandPanel);
+    spButtonsEl.appendChild(closeBtn);
+  }
+
+  // ---- Owner character (bonhomme) ----
+  const owner = {
+    x: -320, y: 40, homeX: -320, homeY: 40,
+    state: 'idle', // 'idle' | 'walking' | 'working' | 'returning'
+    targetX: -320, targetY: 40,
+    speed: 150, workTimer: 0
+  };
+
+  function sendOwnerTo(wx, wy){
+    owner.state = 'walking';
+    owner.targetX = wx;
+    owner.targetY = wy;
+  }
+
+  function updateOwner(dt){
+    if(owner.state === 'walking'){
+      const dx = owner.targetX-owner.x, dy = owner.targetY-owner.y;
+      const d = Math.hypot(dx,dy);
+      if(d < 6){
+        owner.state = 'working';
+        owner.workTimer = 0.8;
+      } else {
+        owner.x += (dx/d)*owner.speed*dt;
+        owner.y += (dy/d)*owner.speed*dt;
+      }
+    } else if(owner.state === 'working'){
+      owner.workTimer -= dt;
+      if(owner.workTimer <= 0){
+        owner.state = 'returning';
+        owner.targetX = owner.homeX;
+        owner.targetY = owner.homeY;
+      }
+    } else if(owner.state === 'returning'){
+      const dx = owner.homeX-owner.x, dy = owner.homeY-owner.y;
+      const d = Math.hypot(dx,dy);
+      if(d < 6){
+        owner.state = 'idle';
+        owner.x = owner.homeX; owner.y = owner.homeY;
+      } else {
+        owner.x += (dx/d)*owner.speed*dt;
+        owner.y += (dy/d)*owner.speed*dt;
+      }
+    }
+  }
+
+  // ---- Customers ----
+  let spawnTimer = 0;
+  let spawnInterval = 2.4;
+
+  function nextSpawnInterval(){
+    // more stands open = more foot traffic = customers arrive more often
+    const n = stands.length;
+    const base = Math.max(0.35, 2.2 - n*0.09);
+    return base + Math.random()*0.7;
+  }
+
+  function pickTargetStand(){
+    const withStock = stands.filter(s=>s.stock>0);
+    if(withStock.length===0) return null;
+    return withStock[Math.floor(Math.random()*withStock.length)];
+  }
+
+  const SKIN_TONES = ['#f4c9a0','#e8b087','#c98a5e','#a86a42','#8a5232','#6b3e26'];
+  const HAIR_COLORS = ['#2b1e14','#4a3222','#000000','#7a4a2a','#c9a876','#5c3a21','#1a1a1a'];
+  const SHIRT_COLORS = ['#e07a5f','#3d8a8a','#e8973a','#5c8a52','#c9556f','#4a6fa5','#e8b23a','#8a5fc9'];
+  const PANTS_COLORS = ['#3c2a1e','#4a5568','#2b4a6b','#5c4a3a','#3a3a3a','#6b4429'];
+
+  function spawnCustomer(){
+    const fromLeft = Math.random()<0.5;
+    const b = sceneBounds();
+    const y = floorFrontY() - 12 + (Math.random()*10-5);
+    const x = fromLeft ? b.minX-40 : b.maxX+40;
+    const target = pickTargetStand();
+    customers.push({
+      x, y,
+      state: target ? 'toStand' : 'toCenterSad',
+      target,
+      speed: 60 + Math.random()*26,
+      dir: fromLeft ? 1 : -1,
+      wait: 0,
+      seed: Math.random()*100,
+      skin: SKIN_TONES[Math.floor(Math.random()*SKIN_TONES.length)],
+      hair: HAIR_COLORS[Math.floor(Math.random()*HAIR_COLORS.length)],
+      shirt: SHIRT_COLORS[Math.floor(Math.random()*SHIRT_COLORS.length)],
+      pants: PANTS_COLORS[Math.floor(Math.random()*PANTS_COLORS.length)]
+    });
+  }
+
+  function updateCustomers(dt){
+    for(let i=customers.length-1;i>=0;i--){
+      const c = customers[i];
+      if(c.state==='toStand'){
+        const tx = c.target.x, ty = c.target.y+10;
+        const dx = tx-c.x, dy = ty-c.y;
+        const d = Math.hypot(dx,dy);
+        if(d < 6){
+          if(c.target.stock>0){
+            c.target.stock--;
+            const price = priceFor(c.target);
+            money += price;
+            sales++;
+            showToast(c.target.x, c.target.y-100, `+${price}€ ${c.target.emoji}`, c.target.isMagic ? '#8a5fc9' : '#4a8c58');
+            updateHud();
+            if(selectedStand === c.target) renderStandPanel(c.target);
+            checkLevelCompletion();
+          }
+          c.state = 'leaving';
+          const b = sceneBounds();
+          c.dir = c.x < (b.minX+b.maxX)/2 ? -1 : 1;
+        } else {
+          c.x += (dx/d)*c.speed*dt;
+          c.y += (dy/d)*c.speed*dt;
+        }
+      } else if(c.state==='toCenterSad'){
+        c.wait += dt;
+        c.x += c.dir*c.speed*0.6*dt;
+        if(c.wait>0.9){ c.state='leaving'; }
+      } else if(c.state==='leaving'){
+        c.x += c.dir*c.speed*dt;
+      }
+      const b = sceneBounds();
+      if(c.x < b.minX-80 || c.x > b.maxX+80){
+        customers.splice(i,1);
+      }
+    }
+  }
+
+  // =========================================================
+  // ---- Drawing: background (isometric floor + building) ----
+  // =========================================================
+  function drawCloud(x,y,scale){
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.beginPath();
+    ctx.ellipse(x, y, 26*scale, 14*scale, 0, 0, Math.PI*2);
+    ctx.ellipse(x+22*scale, y+4*scale, 18*scale, 11*scale, 0, 0, Math.PI*2);
+    ctx.ellipse(x-20*scale, y+5*scale, 16*scale, 10*scale, 0, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  function drawSky(){
+    // sky is drawn in screen space (not affected by world camera) so it always fills the canvas
+    const theme = currentTheme();
+    const grad = ctx.createLinearGradient(0,0,0,H*0.65);
+    grad.addColorStop(0,theme.sky[0]);
+    grad.addColorStop(1,theme.sky[1]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = '#f9d67a';
+    ctx.beginPath(); ctx.arc(W-80, 52, 28, 0, Math.PI*2); ctx.fill();
+    drawCloud(130, 46, 0.8);
+    drawCloud(470, 30, 0.6);
+    drawCloud(660, 60, 0.7);
+  }
+
+  function drawFloor(){
+    const theme = currentTheme();
+    for(let row=0; row<GRID_ROWS; row++){
+      for(let col=0; col<GRID_COLS; col++){
+        const n = isoToScreen(col,row), e = isoToScreen(col+1,row),
+              s = isoToScreen(col+1,row+1), w = isoToScreen(col,row+1);
+        const checker = (col+row)%2===0;
+        ctx.fillStyle = checker ? theme.floorA : theme.floorB;
+        poly(ctx,[n,e,s,w]);
+        ctx.fill();
+        if(theme.stripes){
+          ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+          ctx.lineWidth = 2/camera.zoom;
+          ctx.beginPath(); ctx.moveTo(n.x,n.y); ctx.lineTo(s.x,s.y); ctx.stroke();
+        }
+        if(selectedItem && !findStandAt(col,row)){
+          ctx.fillStyle = 'rgba(232,151,58,0.22)';
+          poly(ctx,[n,e,s,w]);
+          ctx.fill();
+        }
+        ctx.strokeStyle = 'rgba(30,30,30,0.28)';
+        ctx.lineWidth = 1/camera.zoom;
+        poly(ctx,[n,e,s,w]);
+        ctx.stroke();
+      }
+    }
+    const A = isoToScreen(0,0), B = isoToScreen(GRID_COLS,0),
+          C = isoToScreen(GRID_COLS,GRID_ROWS), D = isoToScreen(0,GRID_ROWS);
+    ctx.strokeStyle = shade(theme.floorB,-40);
+    ctx.lineWidth = 3/camera.zoom;
+    poly(ctx,[A,B,C,D]);
+    ctx.stroke();
+  }
+
+  function windowQuad(p1,p2,hTop,hBot){
+    const qx1 = p1.x + (p2.x-p1.x)*0.22, qy1 = p1.y + (p2.y-p1.y)*0.22;
+    const qx2 = p1.x + (p2.x-p1.x)*0.78, qy2 = p1.y + (p2.y-p1.y)*0.78;
+    return [
+      {x:qx1, y:qy1-hBot}, {x:qx2, y:qy2-hBot},
+      {x:qx2, y:qy2-hTop}, {x:qx1, y:qy1-hTop}
+    ];
+  }
+
+  function drawBuilding(){
+    const theme = currentTheme();
+    if(theme.hasBuilding) drawWalledBuilding(theme);
+    else drawParkEdge(theme);
+  }
+
+  function drawWalledBuilding(theme){
+    const OUT = 'rgba(60,42,30,0.45)';
+    const h = wallH();
+    for(let col=0; col<GRID_COLS; col++){
+      const b1 = isoToScreen(col,0), b2 = isoToScreen(col+1,0);
+      const t1 = {x:b1.x, y:b1.y-h}, t2 = {x:b2.x, y:b2.y-h};
+      ctx.fillStyle = theme.wallA;
+      poly(ctx,[b1,b2,t2,t1]); ctx.fill();
+      ctx.strokeStyle=OUT; ctx.lineWidth=1/camera.zoom; poly(ctx,[b1,b2,t2,t1]); ctx.stroke();
+      if(h>28){
+        ctx.fillStyle = theme.wallWin;
+        const win = windowQuad(b1,b2, h-16, 20);
+        poly(ctx,win); ctx.fill();
+        ctx.strokeStyle = theme.wallA; ctx.lineWidth=2/camera.zoom; poly(ctx,win); ctx.stroke();
+      }
+    }
+    for(let row=0; row<GRID_ROWS; row++){
+      const b1 = isoToScreen(0,row), b2 = isoToScreen(0,row+1);
+      const t1 = {x:b1.x, y:b1.y-h}, t2 = {x:b2.x, y:b2.y-h};
+      ctx.fillStyle = theme.wallB;
+      poly(ctx,[b1,b2,t2,t1]); ctx.fill();
+      ctx.strokeStyle=OUT; ctx.lineWidth=1/camera.zoom; poly(ctx,[b1,b2,t2,t1]); ctx.stroke();
+      if(h>28){
+        ctx.fillStyle = theme.wallWin;
+        const win = windowQuad(b1,b2, h-16, 20);
+        poly(ctx,win); ctx.fill();
+        ctx.strokeStyle = theme.wallB; ctx.lineWidth=2/camera.zoom; poly(ctx,win); ctx.stroke();
+      }
+    }
+    const rTop1 = isoToScreen(0,0), rTop2 = isoToScreen(GRID_COLS,0);
+    ctx.strokeStyle = '#5c4023'; ctx.lineWidth = 6/camera.zoom;
+    ctx.beginPath(); ctx.moveTo(rTop1.x, rTop1.y-h); ctx.lineTo(rTop2.x, rTop2.y-h); ctx.stroke();
+    const lTop2 = isoToScreen(0,GRID_ROWS);
+    ctx.beginPath(); ctx.moveTo(rTop1.x, rTop1.y-h); ctx.lineTo(lTop2.x, lTop2.y-h); ctx.stroke();
+
+    const corner = isoToScreen(0,0);
+    const turretTopY = corner.y - h - TURRET_EXTRA;
+    ctx.fillStyle = theme.wallB || '#a9764f';
+    ctx.fillRect(corner.x-22, turretTopY, 44, TURRET_EXTRA+30);
+    ctx.fillStyle = theme.wallA || '#8a5a3c';
+    ctx.fillRect(corner.x-22, corner.y-h-8, 44, 8);
+    ctx.fillStyle = theme.roofAccent;
+    ctx.beginPath();
+    ctx.moveTo(corner.x-28, turretTopY);
+    ctx.lineTo(corner.x+28, turretTopY);
+    ctx.lineTo(corner.x, turretTopY-30);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth=1/camera.zoom;
+    ctx.stroke();
+    ctx.fillStyle = '#e8973a';
+    ctx.beginPath(); ctx.arc(corner.x, turretTopY-30, 4, 0, Math.PI*2); ctx.fill();
+
+    drawHangingSign(corner.x, turretTopY, theme.signBg, theme.signBg2, theme.signText);
+  }
+
+  function drawParkEdge(theme){
+    const hedgeH = 20;
+    for(let col=0; col<GRID_COLS; col++){
+      const b1 = isoToScreen(col,0), b2 = isoToScreen(col+1,0);
+      const t1 = {x:b1.x, y:b1.y-hedgeH}, t2 = {x:b2.x, y:b2.y-hedgeH};
+      ctx.fillStyle = theme.roofAccent;
+      poly(ctx,[b1,b2,t2,t1]); ctx.fill();
+      ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=1/camera.zoom; poly(ctx,[b1,b2,t2,t1]); ctx.stroke();
+      const mx=(b1.x+b2.x)/2, my=(b1.y+b2.y)/2-hedgeH-3;
+      ctx.fillStyle = '#e8973a';
+      ctx.beginPath(); ctx.arc(mx,my,2.6,0,Math.PI*2); ctx.fill();
+    }
+    for(let row=0; row<GRID_ROWS; row++){
+      const b1 = isoToScreen(0,row), b2 = isoToScreen(0,row+1);
+      const t1 = {x:b1.x, y:b1.y-hedgeH}, t2 = {x:b2.x, y:b2.y-hedgeH};
+      ctx.fillStyle = shade(theme.roofAccent,-14);
+      poly(ctx,[b1,b2,t2,t1]); ctx.fill();
+      ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=1/camera.zoom; poly(ctx,[b1,b2,t2,t1]); ctx.stroke();
+      const mx=(b1.x+b2.x)/2, my=(b1.y+b2.y)/2-hedgeH-3;
+      ctx.fillStyle = '#f6e27a';
+      ctx.beginPath(); ctx.arc(mx,my,2.6,0,Math.PI*2); ctx.fill();
+    }
+    const corner = isoToScreen(0,0);
+    const postH = 70;
+    ctx.strokeStyle = '#8a5a3c'; ctx.lineWidth = 8/camera.zoom; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(corner.x-34, corner.y); ctx.lineTo(corner.x-34, corner.y-postH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(corner.x+34, corner.y); ctx.lineTo(corner.x+34, corner.y-postH); ctx.stroke();
+    ctx.strokeStyle = '#6fae5a'; ctx.lineWidth = 10/camera.zoom;
+    ctx.beginPath();
+    ctx.moveTo(corner.x-34, corner.y-postH);
+    ctx.quadraticCurveTo(corner.x, corner.y-postH-30, corner.x+34, corner.y-postH);
+    ctx.stroke();
+    ctx.lineCap='butt';
+
+    drawHangingSign(corner.x, corner.y-postH-6, theme.signBg, theme.signBg2, theme.signText);
+  }
+
+  function drawHangingSign(cx, topY, bg, bg2, text){
+    const boardY = topY+14, boardW = 148, boardH = 26;
+    ctx.strokeStyle = '#6b4429'; ctx.lineWidth = 2/camera.zoom;
+    ctx.beginPath();
+    ctx.moveTo(cx-boardW/2+12, topY); ctx.lineTo(cx-boardW/2+12, boardY);
+    ctx.moveTo(cx+boardW/2-12, topY); ctx.lineTo(cx+boardW/2-12, boardY);
+    ctx.stroke();
+    ctx.fillStyle = bg;
+    roundRect(ctx, cx-boardW/2, boardY, boardW, boardH, 6);
+    ctx.fill();
+    ctx.fillStyle = bg2;
+    roundRect(ctx, cx-boardW/2+4, boardY+4, boardW-8, boardH-13, 4);
+    ctx.fill();
+    ctx.fillStyle = '#fbf3e3';
+    ctx.font = 'bold 13px "Baloo 2", sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(text, cx, boardY+boardH/2+1);
+  }
+
+  function drawTree(x,y,scale){
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath(); ctx.ellipse(x,y+4,16*scale,5*scale,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#8a5a3c';
+    ctx.fillRect(x-4*scale, y-26*scale, 8*scale, 26*scale);
+    const blobs = [
+      {dx:0, dy:-40, r:20}, {dx:-16, dy:-30, r:15}, {dx:16, dy:-30, r:15}, {dx:0,dy:-22,r:16}
+    ];
+    ctx.fillStyle = '#6fae5a';
+    blobs.forEach(b=>{
+      ctx.beginPath(); ctx.arc(x+b.dx*scale, y+b.dy*scale, b.r*scale, 0, Math.PI*2); ctx.fill();
+    });
+    ctx.fillStyle = '#e8973a';
+    [[-10,-38],[8,-44],[-4,-26],[14,-24]].forEach(p=>{
+      ctx.beginPath(); ctx.arc(x+p[0]*scale, y+p[1]*scale, 3*scale, 0, Math.PI*2); ctx.fill();
+    });
+  }
+
+  function drawBollard(x,y,scale){
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath(); ctx.ellipse(x,y+3,10*scale,4*scale,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#4a5568';
+    roundRect(ctx, x-5*scale, y-34*scale, 10*scale, 34*scale, 3*scale);
+    ctx.fill();
+    ctx.fillStyle = '#e8973a';
+    ctx.fillRect(x-5*scale, y-24*scale, 10*scale, 5*scale);
+    ctx.fillStyle = '#dfe3e7';
+    ctx.beginPath(); ctx.arc(x, y-38*scale, 5*scale, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = OUTLINE_COLOR; ctx.lineWidth = 1;
+    roundRect(ctx, x-5*scale, y-34*scale, 10*scale, 34*scale, 3*scale); ctx.stroke();
+  }
+  const OUTLINE_COLOR = '#3c2a1e';
+
+  function drawWorldBackground(){
+    const theme = currentTheme();
+    drawFloor();
+    drawBuilding();
+    const b = sceneBounds();
+    if(theme.key==='parking'){
+      drawBollard(b.minX+16, floorFrontY()-4, 0.8);
+      drawBollard(b.maxX-16, floorFrontY()-24, 0.7);
+    } else {
+      drawTree(b.minX+18, floorFrontY()-6, 0.85);
+      drawTree(b.maxX-18, floorFrontY()-30, 0.7);
+    }
+  }
+
+  // =========================================================
+  // ---- Drawing: isometric stand (clean 3D box + roof) ----
+  // =========================================================
+  const OUTLINE = '#4a3220';
+
+  function drawStockGauge(s, cx, apexY, lw){
+    const scale = standScale(s);
+    const maxS = maxStockFor(s);
+    const ratio = maxS>0 ? Math.max(0, Math.min(1, s.stock/maxS)) : 0;
+    const barW = 44*scale, barH = 6.5;
+    const bx = cx - barW/2, by = apexY - 22;
+
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    roundRect(ctx, bx-2, by-2, barW+4, barH+4, (barH+4)/2);
+    ctx.fill();
+    ctx.strokeStyle = OUTLINE; ctx.lineWidth = Math.max(0.8, lw*0.7);
+    roundRect(ctx, bx-2, by-2, barW+4, barH+4, (barH+4)/2);
+    ctx.stroke();
+
+    ctx.fillStyle = '#e3d8c2';
+    roundRect(ctx, bx, by, barW, barH, barH/2);
+    ctx.fill();
+
+    if(ratio > 0){
+      const fillColor = ratio > 0.5 ? '#4a8c58' : (ratio > 0.2 ? '#e8973a' : '#c1443d');
+      ctx.fillStyle = fillColor;
+      roundRect(ctx, bx, by, Math.max(barH, barW*ratio), barH, barH/2);
+      ctx.fill();
+    }
+
+    // low-stock pulse ring to draw the eye before it runs out
+    if(ratio>0 && ratio<=0.2){
+      const pulse = 1 + Math.sin(time*6)*0.12;
+      ctx.strokeStyle = 'rgba(193,68,61,0.55)';
+      ctx.lineWidth = Math.max(0.8, lw*0.8);
+      roundRect(ctx, bx-2*pulse, by-2*pulse, (barW+4)*pulse, (barH+4)*pulse, ((barH+4)*pulse)/2);
+      ctx.stroke();
+    }
+  }
+
+  function drawStand(s){
+    const scale = standScale(s);
+    const cx = s.x, cy = s.y;
+    const halfW = 40*scale, depthHalf = 20*scale, boxH = 46*scale, roofH = 34*scale;
+    const price = priceFor(s);
+    const highlighted = (s === mergeFirst) || (s === selectedStand);
+    const lw = Math.max(1, 1.6/camera.zoom);
+
+    const base = {
+      top:{x:cx,y:cy-depthHalf}, right:{x:cx+halfW,y:cy},
+      bottom:{x:cx,y:cy+depthHalf}, left:{x:cx-halfW,y:cy}
+    };
+    const top = {
+      top:{x:cx,y:cy-depthHalf-boxH}, right:{x:cx+halfW,y:cy-boxH},
+      bottom:{x:cx,y:cy+depthHalf-boxH}, left:{x:cx-halfW,y:cy-boxH}
+    };
+    const apex = {x:cx, y:cy-boxH-roofH};
+
+    if(s.isMagic){
+      const glow = ctx.createRadialGradient(cx, cy-boxH, 4, cx, cy-boxH, halfW*2.1);
+      glow.addColorStop(0,'rgba(138,95,201,0.28)');
+      glow.addColorStop(1,'rgba(138,95,201,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath(); ctx.arc(cx, cy-boxH, halfW*2.1, 0, Math.PI*2); ctx.fill();
+    }
+
+    // ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    poly(ctx,[
+      {x:cx,y:cy-depthHalf*0.7},{x:cx+halfW*1.05,y:cy+4},
+      {x:cx,y:cy+depthHalf*1.5+6},{x:cx-halfW*1.05,y:cy+4}
+    ]);
+    ctx.fill();
+
+    if(highlighted){
+      ctx.strokeStyle = s===mergeFirst ? '#8a5fc9' : '#e8973a';
+      ctx.lineWidth = 3/camera.zoom; ctx.setLineDash([6/camera.zoom,4/camera.zoom]);
+      poly(ctx,[
+        {x:cx,y:cy-depthHalf-boxH-roofH-10},{x:cx+halfW+14,y:cy-boxH*0.3},
+        {x:cx,y:cy+depthHalf+10},{x:cx-halfW-14,y:cy-boxH*0.3}
+      ]);
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    // ---- box faces ----
+    const leftFace = [base.left, base.bottom, top.bottom, top.left];
+    const rightFace = [base.right, base.bottom, top.bottom, top.right];
+    ctx.fillStyle = shade('#8a5a3c',-30);
+    poly(ctx,leftFace); ctx.fill();
+    ctx.fillStyle = shade('#8a5a3c',-6);
+    poly(ctx,rightFace); ctx.fill();
+    ctx.strokeStyle = OUTLINE; ctx.lineWidth = lw;
+    poly(ctx,leftFace); ctx.stroke();
+    poly(ctx,rightFace); ctx.stroke();
+
+    // colored decal panel, inset & skewed to match the right face (no more "pasted sticker" look)
+    const rightDecal = insetQuad(rightFace, 0.16);
+    ctx.fillStyle = s.colorA;
+    poly(ctx,rightDecal); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = lw*0.8;
+    poly(ctx,rightDecal); ctx.stroke();
+    const rc = centroid(rightDecal);
+    ctx.font = `${Math.round(15*scale)}px sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle = '#3c2a1e';
+    ctx.fillText(s.emoji, rc.x, rc.y-boxH*0.12);
+    ctx.font = `bold ${Math.round(10*scale)}px "Baloo 2", sans-serif`;
+    ctx.fillText(`x${s.stock}`, rc.x, rc.y+boxH*0.20);
+
+    // chalkboard price decal, inset & skewed to match the left face
+    const leftDecal = insetQuad(leftFace, 0.2);
+    ctx.fillStyle = '#2f3b2f';
+    poly(ctx,leftDecal); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = lw*0.7;
+    poly(ctx,leftDecal); ctx.stroke();
+    const lc = centroid(leftDecal);
+    ctx.fillStyle = '#f4f1e8';
+    ctx.font = `${Math.round(11*scale)}px "Baloo 2", sans-serif`;
+    ctx.fillText(`${price}€`, lc.x, lc.y);
+
+    // ---- roof (two visible slopes) ----
+    const stripeColors = s.isMagic ? [s.colorB, s.colorA] : [s.colorA, '#f7ede2'];
+    ctx.fillStyle = stripeColors[0];
+    poly(ctx,[top.right, top.bottom, apex]); ctx.fill();
+    ctx.fillStyle = stripeColors[1];
+    poly(ctx,[top.left, top.bottom, apex]); ctx.fill();
+    ctx.strokeStyle = OUTLINE; ctx.lineWidth = lw;
+    poly(ctx,[top.right, top.bottom, apex]); ctx.stroke();
+    poly(ctx,[top.left, top.bottom, apex]); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(top.bottom.x, top.bottom.y); ctx.lineTo(apex.x, apex.y); ctx.stroke();
+
+    // clean eave trim (no busy scallops)
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = lw*0.9; ctx.globalAlpha=0.55;
+    ctx.beginPath(); ctx.moveTo(top.left.x,top.left.y); ctx.lineTo(top.bottom.x,top.bottom.y); ctx.lineTo(top.right.x,top.right.y); ctx.stroke();
+    ctx.globalAlpha=1;
+
+    // apex ornament
+    ctx.fillStyle = s.isMagic ? '#8a5fc9' : '#e8973a';
+    ctx.beginPath(); ctx.arc(apex.x, apex.y-4, 5, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw*0.8; ctx.stroke();
+
+    // level medal, centered relative to the stand (not on a skewed corner) — stays legible at any zoom
+    const medalX = cx + halfW*0.72, medalY = cy - boxH - roofH*0.35;
+    ctx.fillStyle = s.isMagic ? '#8a5fc9' : '#e8973a';
+    ctx.beginPath();
+    ctx.moveTo(medalX,medalY+9); ctx.lineTo(medalX-6,medalY+21); ctx.lineTo(medalX,medalY+16);
+    ctx.lineTo(medalX+6,medalY+21); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.arc(medalX,medalY+9,10,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw*0.8; ctx.beginPath(); ctx.arc(medalX,medalY+9,10,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle='#fff'; ctx.lineWidth = lw*0.8;
+    ctx.beginPath(); ctx.arc(medalX,medalY+9,7,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle='#fff';
+    ctx.font = `bold ${Math.round(10*scale)}px "Baloo 2", sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(s.level, medalX, medalY+10);
+
+    // stock gauge — always visible, lets the player anticipate restocking
+    drawStockGauge(s, cx, apex.y, lw);
+
+    if(s.isMagic){
+      for(let i=0;i<3;i++){
+        const a = time*1.3 + i*2.1 + s.bob;
+        const sx = cx + Math.cos(a)*halfW*0.9;
+        const sy = apex.y-10 + Math.sin(a)*10;
+        ctx.font = `${9+3*Math.sin(time*3+i)}px sans-serif`;
+        ctx.globalAlpha = 0.8;
+        ctx.fillText('✨', sx, sy);
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    if(s.stock===0){
+      ctx.font='11px "Nunito"';
+      ctx.fillStyle = '#c1443d';
+      ctx.textAlign='center';
+      ctx.fillText('vide — touche pour gérer', cx, cy+depthHalf+16);
+    }
+  }
+
+  // =========================================================
+  // ---- Drawing: owner + customers (billboard sprites) ----
+  // =========================================================
+  function drawOwner(){
+    const moving = owner.state === 'walking' || owner.state === 'returning';
+    const working = owner.state === 'working';
+    const bob = moving ? Math.abs(Math.sin(time*9))*4 : Math.sin(time*3)*2;
+    const x = owner.x, y = owner.y - bob;
+
+    ctx.fillStyle='rgba(0,0,0,0.15)';
+    ctx.beginPath(); ctx.ellipse(x, owner.y+8, 16, 5, 0,0,Math.PI*2); ctx.fill();
+
+    if(moving){
+      const swing = Math.sin(time*9)*6;
+      ctx.strokeStyle = '#6b4429'; ctx.lineWidth = 5; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(x-4,y-2); ctx.lineTo(x-4-swing,y+16); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x+4,y-2); ctx.lineTo(x+4+swing,y+16); ctx.stroke();
+    }
+
+    ctx.fillStyle = '#e8973a';
+    roundRect(ctx, x-12, y-28, 24, 30, 8);
+    ctx.fill();
+    ctx.font = '30px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🧑‍🌾', x, y-38);
+    ctx.fillStyle = '#fbf3e3';
+    roundRect(ctx, x-8, y-16, 16, 14, 4);
+    ctx.fill();
+
+    if(working){
+      const t = time%0.6;
+      const wiggle = Math.sin(time*16)*6;
+      ctx.save();
+      ctx.translate(x+16, y-40);
+      ctx.rotate(wiggle*Math.PI/180);
+      ctx.font = '18px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('🔧', 0, 0);
+      ctx.restore();
+    }
+
+    if(stands.length===0 && owner.state==='idle'){
+      const t = time%3;
+      if(t<2.2){
+        ctx.globalAlpha = t>1.8 ? (2.2-t)/0.4 : 1;
+        ctx.fillStyle = '#fff';
+        roundRect(ctx, x+14, y-70, 158, 34, 8);
+        ctx.fill();
+        ctx.strokeStyle='#6b4429'; ctx.lineWidth=1.5/camera.zoom;
+        roundRect(ctx, x+14, y-70, 158, 34, 8);
+        ctx.stroke();
+        ctx.fillStyle = '#3c2a1e';
+        ctx.font = '12px "Nunito"';
+        ctx.fillText('Construis mon premier stand !', x+93, y-53);
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+
+  function drawCustomer(c){
+    const moving = c.state !== 'toCenterSad' || c.wait < 0.85;
+    const speedFactor = moving ? 9 : 0;
+    const t = time*speedFactor + c.seed;
+    const swing = moving ? Math.sin(t)*7 : 0;
+    const headBob = moving ? Math.sin(t*2)*1 : 0;
+
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath(); ctx.ellipse(0, 3, 9, 3, 0, 0, Math.PI*2); ctx.fill();
+    ctx.lineCap = 'round';
+
+    ctx.strokeStyle = c.pants; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(-3,-15); ctx.lineTo(-3-swing*0.55, 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(3,-15); ctx.lineTo(3+swing*0.55, 2); ctx.stroke();
+
+    ctx.strokeStyle = c.shirt; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.moveTo(-6,-27); ctx.lineTo(-6+swing*0.65, -13); ctx.stroke();
+
+    ctx.fillStyle = c.shirt;
+    roundRect(ctx, -7, -30, 14, 17, 4); ctx.fill();
+
+    ctx.strokeStyle = c.shirt; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.moveTo(6,-27); ctx.lineTo(6-swing*0.65, -13); ctx.stroke();
+
+    ctx.fillStyle = c.skin;
+    ctx.beginPath();
+    ctx.arc(-6+swing*0.65, -13, 2, 0, Math.PI*2);
+    ctx.arc(6-swing*0.65, -13, 2, 0, Math.PI*2);
+    ctx.fill();
+
+    const headY = -35 + headBob;
+    ctx.fillStyle = c.skin;
+    ctx.beginPath(); ctx.arc(0, headY, 6.5, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = c.hair;
+    ctx.beginPath();
+    ctx.arc(0, headY-1.5, 6.9, Math.PI*1.02, Math.PI*1.98);
+    ctx.fill();
+
+    ctx.fillStyle = '#3c2a1e';
+    ctx.beginPath();
+    ctx.arc(-2, headY+0.5, 0.8, 0, Math.PI*2);
+    ctx.arc(2, headY+0.5, 0.8, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = '#3c2a1e'; ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.arc(0, headY+2.5, 2, 0.15*Math.PI, 0.85*Math.PI);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // =========================================================
+  // ---- Main loop ----
+  // =========================================================
+  function loop(ts){
+    const dt = Math.min(0.033, (loop.last? (ts-loop.last)/1000 : 0.016));
+    loop.last = ts;
+    time += dt;
+
+    if(cameraAnim){
+      cameraAnim.t += dt;
+      const p = Math.min(1, cameraAnim.t/cameraAnim.dur);
+      const e = easeOutCubic(p);
+      camera.zoom = cameraAnim.from.zoom + (cameraAnim.to.zoom-cameraAnim.from.zoom)*e;
+      camera.x = cameraAnim.from.x + (cameraAnim.to.x-cameraAnim.from.x)*e;
+      camera.y = cameraAnim.from.y + (cameraAnim.to.y-cameraAnim.from.y)*e;
+      if(p>=1) cameraAnim = null;
+    }
+
+    spawnTimer += dt;
+    if(spawnTimer > spawnInterval && stands.length>0){
+      spawnTimer = 0;
+      spawnInterval = nextSpawnInterval();
+      spawnCustomer();
+    }
+    updateCustomers(dt);
+    updateOwner(dt);
+
+    passiveTimer += dt;
+    if(passiveTimer >= PASSIVE_INCOME_INTERVAL){
+      passiveTimer -= PASSIVE_INCOME_INTERVAL;
+      money += 1;
+      updateHud();
+      pulseMoneyBadge();
+      checkLevelCompletion();
+    }
+
+    if(staffCount > 0){
+      staffTimer += dt;
+      if(staffTimer >= STAFF_TICK_INTERVAL){
+        staffTimer -= STAFF_TICK_INTERVAL;
+        let restocked = false;
+        stands.forEach(s=>{
+          if(s.level >= STAFF_MIN_STAND_LEVEL){
+            const before = s.stock;
+            s.stock = Math.min(maxStockFor(s), s.stock + staffCount);
+            if(s.stock !== before){
+              restocked = true;
+              if(selectedStand === s) renderStandPanel(s);
+            }
+          }
+        });
+        if(restocked) updateHud();
+      }
+    }
+
+    ctx.clearRect(0,0,W,H);
+    drawSky();
+
+    ctx.save();
+    ctx.translate(W/2, H/2);
+    ctx.scale(camera.zoom, camera.zoom);
+    ctx.translate(-camera.x, -camera.y);
+
+    drawWorldBackground();
+
+    const drawables = [
+      ...stands.map(s=>({y:s.y, draw:()=>drawStand(s)})),
+      ...customers.map(c=>({y:c.y, draw:()=>drawCustomer(c)})),
+      {y:owner.y+30, draw:drawOwner}
+    ];
+    drawables.sort((a,b)=>a.y-b.y);
+    drawables.forEach(d=>d.draw());
+
+    ctx.restore();
+
+    requestAnimationFrame(loop);
+  }
+
+  // =========================================================
+  // ---- Save / resume (localStorage) + launch screen ----
+  // =========================================================
+  const SAVE_KEY = 'marketplus_save_v1';
+
+  function serializeState(){
+    return JSON.stringify({
+      money, sales, worldLevel, staffCount, expansions,
+      GRID_COLS, GRID_ROWS,
+      stands: stands.map(s=>({
+        col:s.col, row:s.row, id:s.id, emoji:s.emoji, name:s.name,
+        level:s.level, basePrice:s.basePrice, baseCost:s.baseCost,
+        stock:s.stock, isMagic:s.isMagic, colorA:s.colorA, colorB:s.colorB
+      }))
+    });
+  }
+  function saveGame(){
+    if(!gameStarted) return;
+    try{ localStorage.setItem(SAVE_KEY, serializeState()); }catch(e){}
+  }
+  function loadSavedState(){
+    try{
+      const raw = localStorage.getItem(SAVE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+  function applySavedState(data){
+    money = typeof data.money==='number' ? data.money : money;
+    sales = typeof data.sales==='number' ? data.sales : sales;
+    worldLevel = data.worldLevel || worldLevel;
+    staffCount = data.staffCount || 0;
+    expansions = data.expansions || 0;
+    GRID_COLS = data.GRID_COLS || GRID_COLS;
+    GRID_ROWS = data.GRID_ROWS || GRID_ROWS;
+    stands = (data.stands||[]).map(sd=>{
+      const c = tileCenter(sd.col, sd.row);
+      return Object.assign({}, sd, {x:c.x, y:c.y, bob: Math.random()*Math.PI*2});
+    });
+    customers = [];
+  }
+
+  function startGame(){
+    gameStarted = true;
+    fitCamera(0);
+    if(cameraAnim){ camera.zoom=cameraAnim.to.zoom; camera.x=cameraAnim.to.x; camera.y=cameraAnim.to.y; cameraAnim=null; }
+    updateHud();
+    requestAnimationFrame(loop);
+  }
+
+  const splashEl = document.getElementById('splashScreen');
+  const resumeBtnEl = document.getElementById('resumeBtn');
+  const newGameBtnEl = document.getElementById('newGameBtn');
+  const savedData = loadSavedState();
+  if(savedData && Array.isArray(savedData.stands)){
+    resumeBtnEl.style.display = 'block';
+  }
+
+  function dismissSplash(){
+    splashEl.classList.add('hide');
+    setTimeout(()=>{ if(splashEl.parentNode) splashEl.parentNode.removeChild(splashEl); }, 450);
+  }
+
+  resumeBtnEl.addEventListener('click', ()=>{
+    if(savedData) applySavedState(savedData);
+    dismissSplash();
+    startGame();
+  });
+  newGameBtnEl.addEventListener('click', ()=>{
+    try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+    dismissSplash();
+    startGame();
+  });
+
+})();
+</script>
+</body>
+</html>
