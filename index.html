@@ -747,7 +747,8 @@
   function eligibleStaffStandsCount(){
     return stands.filter(s=>s.level>=STAFF_MIN_STAND_LEVEL).length;
   }
-  function requiredStandsForNextStaff(){ return (staffCount+1)*2; }
+  const STAFF_STANDS_REQUIRED = 2;
+  function maxStaffForLevel(){ return worldLevel; }
 
   function standScale(s){ return 1 + (s.level-1)*0.045; }
   function maxStockFor(s){ return 5 + (s.level-1)*2; }
@@ -769,9 +770,12 @@
     progressTextEl.textContent = `${Math.min(money,levelUpTarget())}/${levelUpTarget()}`;
     staffCountTextEl.textContent = staffCount;
     const elig = eligibleStaffStandsCount();
-    const req = requiredStandsForNextStaff();
-    if(elig < req){
-      staffBtnEl.textContent = `👷 Employé (${elig}/${req} niv.${STAFF_MIN_STAND_LEVEL}+)`;
+    const atLevelCap = staffCount >= maxStaffForLevel();
+    if(atLevelCap){
+      staffBtnEl.textContent = `👷 Employé — 🔒 débloqué au niveau ${worldLevel+1}`;
+      staffBtnEl.disabled = true;
+    } else if(elig < STAFF_STANDS_REQUIRED){
+      staffBtnEl.textContent = `👷 Employé (${elig}/${STAFF_STANDS_REQUIRED} niv.${STAFF_MIN_STAND_LEVEL}+)`;
       staffBtnEl.disabled = true;
     } else {
       staffBtnEl.textContent = `👷 Employé n°${staffCount+1} (${STAFF_COST}€)`;
@@ -782,7 +786,8 @@
   updateHud();
 
   staffBtnEl.addEventListener('click', ()=>{
-    if(eligibleStaffStandsCount() < requiredStandsForNextStaff()) return;
+    if(staffCount >= maxStaffForLevel()) return;
+    if(eligibleStaffStandsCount() < STAFF_STANDS_REQUIRED) return;
     if(money < STAFF_COST){
       hintEl.textContent = "Pas assez d'argent pour engager un employé !";
       return;
