@@ -213,33 +213,6 @@
   }
   #staffBtn:active{ transform:translateY(2px); box-shadow:none; }
   #staffBtn:disabled{ opacity:0.55; cursor:not-allowed; }
-  #palette{
-    display:flex;
-    flex-direction:column;
-    gap:5px;
-    margin-bottom:8px;
-  }
-  .item-btn{
-    font-family:'Baloo 2',cursive;
-    border:2px solid var(--wood);
-    background:var(--cream);
-    border-radius:12px;
-    padding:5px 6px;
-    display:flex; align-items:center; gap:6px;
-    cursor:pointer;
-    transition:transform .12s ease, box-shadow .12s ease;
-    box-shadow:0 2px 0 rgba(0,0,0,0.1);
-    user-select:none;
-  }
-  .item-btn:active{transform:translateY(2px); box-shadow:none;}
-  .item-btn.selected{
-    background:var(--accent);
-    border-color:var(--accent-dark);
-    color:#fff;
-    box-shadow:0 3px 0 var(--accent-dark);
-  }
-  .item-emoji{font-size:19px; line-height:1;}
-  .item-cost{font-size:11px; font-weight:700;}
   #hint{
     text-align:center;
     font-size:11px;
@@ -292,13 +265,14 @@
   }
   #zoomHint{
     position:absolute;
-    bottom:8px; right:10px;
+    bottom:72px; right:10px;
     font-size:11px;
     color:#7a6a56;
     background:rgba(255,255,255,0.7);
     padding:3px 8px;
     border-radius:8px;
     pointer-events:none;
+    z-index:20;
   }
   #moneyBadge{
     position:absolute;
@@ -324,6 +298,47 @@
     50%{ transform:scale(1.16); box-shadow:0 0 0 7px rgba(74,140,88,0.25), 0 3px 0 rgba(0,0,0,0.15); }
     100%{ transform:scale(1); }
   }
+  /* ---- Fruit palette: bottom overlay strip inside the game window ---- */
+  #palette{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    z-index:30;
+    display:flex;
+    gap:6px;
+    padding:8px 10px;
+    overflow-x:auto;
+    align-items:center;
+    background:linear-gradient(180deg, rgba(251,243,227,0) 0%, rgba(251,243,227,0.85) 35%, rgba(251,243,227,0.98) 100%);
+  }
+  .item-btn{
+    font-family:'Baloo 2',cursive;
+    flex:0 0 auto;
+    width:52px;
+    border:2px solid var(--wood);
+    background:var(--cream);
+    border-radius:12px;
+    padding:4px 2px 3px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease, opacity .15s ease;
+    box-shadow:0 2px 0 rgba(0,0,0,0.1);
+    user-select:none;
+  }
+  .item-btn:active{transform:translateY(2px); box-shadow:none;}
+  .item-btn.selected{
+    background:var(--accent);
+    border-color:var(--accent-dark);
+    color:#fff;
+    box-shadow:0 3px 0 var(--accent-dark);
+  }
+  .item-btn.locked{
+    opacity:0.45;
+    filter:grayscale(0.8);
+    cursor:not-allowed;
+  }
+  .item-btn.locked:active{ transform:none; box-shadow:0 2px 0 rgba(0,0,0,0.1); }
+  .item-emoji{font-size:19px; line-height:1;}
+  .item-cost{font-size:10.5px; font-weight:700; margin-top:1px;}
   #levelBanner{
     position:absolute; inset:0;
     display:flex; flex-direction:column;
@@ -363,10 +378,10 @@
     display:none;
     position:absolute;
     left:50%;
-    bottom:12px;
+    bottom:66px;
     transform:translateX(-50%);
     width:min(92%, 460px);
-    max-height:calc(100% - 24px);
+    max-height:calc(100% - 78px);
     overflow-y:auto;
     background:rgba(251,243,227,0.98);
     border:2px solid var(--wood);
@@ -376,6 +391,34 @@
     z-index:45;
   }
   #standPanel.open{ display:block; }
+  #fruitConfirm{
+    display:none;
+    position:absolute;
+    left:50%;
+    bottom:66px;
+    transform:translateX(-50%);
+    min-width:190px;
+    background:rgba(251,243,227,0.98);
+    border:2px solid var(--wood);
+    border-radius:14px;
+    padding:8px 10px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.28);
+    z-index:47;
+  }
+  #fruitConfirm.open{ display:block; }
+  .fc-row{ display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+  .fc-emoji{ font-size:28px; line-height:1; }
+  .fc-name{ font-family:'Baloo 2',cursive; font-weight:700; font-size:13px; color:var(--wood-dark); }
+  .fc-cost{ font-family:'Baloo 2',cursive; font-weight:800; font-size:13px; color:var(--accent-dark); }
+  .fc-actions{ display:flex; gap:6px; justify-content:flex-end; }
+  .fc-btn{
+    font-family:'Baloo 2',cursive; font-weight:700; font-size:12.5px;
+    border-radius:10px; padding:6px 10px; cursor:pointer; border:2px solid var(--wood-dark);
+  }
+  .fc-btn:active{ transform:translateY(2px); }
+  .fc-btn.confirm{ background:linear-gradient(135deg,#4a8c58,#5c8a52); color:#fff; }
+  .fc-btn.confirm:disabled{ opacity:0.5; cursor:not-allowed; }
+  .fc-btn.cancel{ background:#fff; color:var(--wood-dark); }
   #spTitle{
     font-family:'Baloo 2',cursive;
     font-weight:700;
@@ -453,7 +496,6 @@
     <div class="pill">👷 <span id="staffCountText">0</span> employé(s)</div>
     <button id="expandBtn">🏗️ Agrandir</button>
     <button id="staffBtn">👷 Employé</button>
-    <div id="palette"></div>
     <div id="hint">Choisis un fruit, puis touche une case du marché.</div>
   </div>
 
@@ -464,6 +506,8 @@
       <div id="zoomHint">🤏 Pince pour zoomer</div>
       <div id="levelBanner"></div>
       <div id="moneyBadge">💰 <span id="moneyBadgeValue">30</span> €</div>
+      <div id="palette"></div>
+      <div id="fruitConfirm"></div>
       <div id="standPanel">
         <div id="spTitle"></div>
         <div id="spLevelBar"></div>
@@ -489,6 +533,9 @@
   const standCountEl = document.getElementById('standCount');
   const happyCountEl = document.getElementById('happyCount');
   const paletteEl = document.getElementById('palette');
+  const fruitConfirmEl = document.getElementById('fruitConfirm');
+  let pendingItemId = null;
+  let manuallyUnlockedFruits = new Set();
   const hintEl = document.getElementById('hint');
   const expandBtnEl = document.getElementById('expandBtn');
   const staffBtnEl = document.getElementById('staffBtn');
@@ -702,19 +749,24 @@
       const btn = document.createElement('div');
       btn.className = 'item-btn';
       btn.dataset.id = item.id;
+      btn.dataset.cost = `${total}€`;
       btn.innerHTML = `<div class="item-emoji">${item.emoji}</div><div class="item-cost">${total}€</div>`;
       btn.addEventListener('click', ()=>{
+        if(btn.classList.contains('locked')){
+          showUnlockConfirm(item);
+          return;
+        }
+        if(selectedItem === item.id){
+          // already armed — tap again to deselect directly, no need to confirm
+          selectedItem = null;
+          refreshPalette();
+          hideFruitConfirm();
+          hintEl.textContent = "Choisis un fruit, puis touche une case du marché.";
+          return;
+        }
         cancelMerge();
         closeStandPanel();
-        if(selectedItem === item.id){
-          selectedItem = null;
-        } else {
-          selectedItem = item.id;
-        }
-        refreshPalette();
-        hintEl.textContent = selectedItem
-          ? "Touche une case libre du marché."
-          : "Choisis un fruit, puis touche une case du marché.";
+        showFruitConfirm(item, total);
       });
       paletteEl.appendChild(btn);
     });
@@ -722,6 +774,87 @@
   function refreshPalette(){
     [...paletteEl.children].forEach(btn=>{
       btn.classList.toggle('selected', btn.dataset.id === selectedItem);
+    });
+  }
+  function showFruitConfirm(item, total){
+    pendingItemId = item.id;
+    const canAfford = money >= total;
+    fruitConfirmEl.innerHTML = `
+      <div class="fc-row">
+        <div class="fc-emoji">${item.emoji}</div>
+        <div>
+          <div class="fc-name">${ITEM_NAMES[item.id]}</div>
+          <div class="fc-cost">${total}€</div>
+        </div>
+      </div>
+      <div class="fc-actions">
+        <button type="button" class="fc-btn cancel" id="fcCancelBtn">✕</button>
+        <button type="button" class="fc-btn confirm" id="fcConfirmBtn" ${canAfford?'':'disabled'}>✅ Construire</button>
+      </div>`;
+    fruitConfirmEl.classList.add('open');
+    document.getElementById('fcConfirmBtn').addEventListener('click', ()=>{
+      selectedItem = pendingItemId;
+      hideFruitConfirm();
+      refreshPalette();
+      hintEl.textContent = "Touche une case libre du marché.";
+    });
+    document.getElementById('fcCancelBtn').addEventListener('click', ()=> hideFruitConfirm());
+  }
+  function hideFruitConfirm(){
+    fruitConfirmEl.classList.remove('open');
+    pendingItemId = null;
+  }
+  function unlockCostFor(idx){
+    const target = levelUpTarget();
+    return Math.max(20, Math.round(target * (idx+1)/ITEMS.length * 0.3));
+  }
+  function showUnlockConfirm(item){
+    const idx = ITEMS.findIndex(i=>i.id===item.id);
+    const cost = unlockCostFor(idx);
+    const canAfford = money >= cost;
+    pendingItemId = item.id;
+    fruitConfirmEl.innerHTML = `
+      <div class="fc-row">
+        <div class="fc-emoji" style="filter:grayscale(1);opacity:.6">${item.emoji}</div>
+        <div>
+          <div class="fc-name">🔒 ${ITEM_NAMES[item.id]}</div>
+          <div class="fc-cost">Débloquer : ${cost}€</div>
+        </div>
+      </div>
+      <div class="fc-actions">
+        <button type="button" class="fc-btn cancel" id="fcCancelBtn">✕</button>
+        <button type="button" class="fc-btn confirm" id="fcConfirmBtn" ${canAfford?'':'disabled'}>🔓 Débloquer</button>
+      </div>`;
+    fruitConfirmEl.classList.add('open');
+    document.getElementById('fcConfirmBtn').addEventListener('click', ()=>{
+      if(money < cost) return;
+      money -= cost;
+      manuallyUnlockedFruits.add(item.id);
+      hideFruitConfirm();
+      hintEl.textContent = `${ITEM_NAMES[item.id]} débloqué ! 🔓`;
+      updateHud();
+    });
+    document.getElementById('fcCancelBtn').addEventListener('click', ()=> hideFruitConfirm());
+  }
+  function unlockedFruitCount(){
+    const target = levelUpTarget();
+    const frac = target>0 ? Math.max(0, Math.min(1, money/target)) : 1;
+    return Math.max(1, Math.min(ITEMS.length, Math.ceil(frac*ITEMS.length)));
+  }
+  function updatePaletteLocks(){
+    const n = unlockedFruitCount();
+    [...paletteEl.children].forEach((btn,i)=>{
+      const locked = i>=n && !manuallyUnlockedFruits.has(btn.dataset.id);
+      btn.classList.toggle('locked', locked);
+      const costEl = btn.querySelector('.item-cost');
+      costEl.textContent = locked ? '🔒' : btn.dataset.cost;
+      if(locked && selectedItem===btn.dataset.id){
+        selectedItem = null;
+        refreshPalette();
+      }
+      if(locked && pendingItemId===btn.dataset.id){
+        hideFruitConfirm();
+      }
     });
   }
   buildPalette();
@@ -781,6 +914,7 @@
       staffBtnEl.textContent = `👷 Employé n°${staffCount+1} (${STAFF_COST}€)`;
       staffBtnEl.disabled = false;
     }
+    updatePaletteLocks();
     saveGame();
   }
   updateHud();
@@ -854,6 +988,7 @@
       worldLevel++;
       GRID_COLS = 5; GRID_ROWS = 4; expansions = 0;
       stands = []; customers = [];
+      manuallyUnlockedFruits.clear();
       selectedStand = null; mergeFirst = null; mode = 'idle';
       closeStandPanel();
       levelTransitioning = false;
@@ -941,6 +1076,7 @@
   let mergeFirst = null;
 
   function handleTap(x,y){
+    if(pendingItemId) hideFruitConfirm();
     const {col,row} = tileFromWorld(x,y);
     if(!inBounds(col,row)){
       if(mode!=='merging') closeStandPanel();
@@ -1073,7 +1209,7 @@
       id: a.id+'_'+b.id,
       emoji: a.emoji+b.emoji,
       name: `${a.name}-${b.name} Magique`,
-      level: 1,
+      level: Math.min(a.level, b.level),
       basePrice: a.basePrice + b.basePrice + 4,
       baseCost: a.baseCost + b.baseCost,
       stock: 5,
@@ -1082,6 +1218,7 @@
       colorB: b.colorA,
       bob: Math.random()*Math.PI*2
     };
+    magicStand.stock = maxStockFor(magicStand);
     stands = stands.filter(s=> s!==a && s!==b);
     stands.push(magicStand);
     cancelMerge();
@@ -1199,13 +1336,14 @@
 
   // ---- Customers ----
   let spawnTimer = 0;
-  let spawnInterval = 2.4;
+  let spawnInterval = 3.0;
 
   function nextSpawnInterval(){
-    // more stands open = more foot traffic = customers arrive more often
+    // more stands open = more foot traffic = customers arrive more often.
+    // Starts sparse with just a stand or two, then ramps up noticeably.
     const n = stands.length;
-    const base = Math.max(0.35, 2.2 - n*0.09);
-    return base + Math.random()*0.7;
+    const base = Math.max(0.3, 3.2 - n*0.14);
+    return base + Math.random()*0.6;
   }
 
   function pickTargetStand(){
@@ -1554,6 +1692,307 @@
     }
   }
 
+  // ---- Realistic 3D fruit toppers (RollerCoaster-Tycoon-style oversized food model per stand) ----
+  const FRUIT_VISUALS = {
+    mangue:    {shape:'sphere', aspect:1.15, color:'#f0954a', colorDark:'#c9651a', colorLight:'#ffcf8a', texture:null,      topper:'stem'},
+    ananas:    {shape:'oval',   aspect:1.35, color:'#e8b23a', colorDark:'#a87a1e', colorLight:'#f6d87a', texture:'diamond', textureColor:'#a87a1e', topper:'crown'},
+    coco:      {shape:'sphere', aspect:1.0,  color:'#8a6a4a', colorDark:'#5c4429', colorLight:'#c9a876', texture:'dots',    textureColor:'#5c4429', dotCount:20, topper:'none'},
+    kiwi:      {shape:'sphere', aspect:1.0,  color:'#a9884a', colorDark:'#7a5c2e', colorLight:'#d4b878', texture:'dots',    textureColor:'#5c8a2a', dotCount:10, topper:'stem'},
+    banane:    {shape:'bananaBunch', aspect:1.0, color:'#f6e27a', colorDark:'#c9a83a', colorLight:'#fff3b0', texture:null, topper:'none'},
+    avocat:    {shape:'oval',   aspect:1.3,  color:'#4a6b3a', colorDark:'#2c4522', colorLight:'#7a9c5a', texture:'dots',    textureColor:'#2c4522', dotCount:16, topper:'stem'},
+    melon:     {shape:'sphere', aspect:1.05, color:'#c9d96a', colorDark:'#9aab3e', colorLight:'#e8f0a0', texture:'dots',    textureColor:'#9aab3e', dotCount:24, topper:'stem'},
+    pasteque:  {shape:'sphere', aspect:1.1,  color:'#4a9e4a', colorDark:'#2c6b2c', colorLight:'#7ac47a', texture:'stripes', textureColor:'#215221', stripeCount:6, topper:'none'},
+    raisin:    {shape:'cluster', aspect:1.2, color:'#8a5fc9', colorDark:'#5c3a8a', colorLight:'#b98ae0', texture:null, topper:'stem'},
+    peche:     {shape:'sphere', aspect:1.05, color:'#f2a08a', colorDark:'#d9704a', colorLight:'#ffd0b8', texture:null,      topper:'leaf'},
+    mandarine: {shape:'sphere', aspect:1.0,  color:'#f0902a', colorDark:'#c9701a', colorLight:'#ffc06a', texture:'dots',    textureColor:'#c9701a', dotCount:14, topper:'leaf'},
+    fraise:    {shape:'heart',  aspect:1.1,  color:'#e0455a', colorDark:'#a8283a', colorLight:'#ff8a9a', texture:'dots',    textureColor:'#f6e27a', dotCount:14, topper:'calyx'},
+    litchi:    {shape:'sphere', aspect:1.0,  color:'#d96a6a', colorDark:'#a8433a', colorLight:'#f2a0a0', texture:'dots',    textureColor:'#a8433a', dotCount:16, topper:'stem'}
+  };
+  const TOPPER_EXTRA_FRAC = {stem:0.4, leaf:0.45, crown:0.9, calyx:0.25, none:0};
+
+  function fruitVisual(id){ return FRUIT_VISUALS[id] || FRUIT_VISUALS.mangue; }
+
+  // deterministic golden-angle scatter so texture dots never jitter between frames
+  function drawDotsTexture(cx,cy,rx,ry,color,count,size){
+    for(let i=0;i<count;i++){
+      const ang = (i*2.399963) % (Math.PI*2);
+      const rad = Math.sqrt((i+0.5)/count);
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(cx+Math.cos(ang)*rad*rx*0.88, cy+Math.sin(ang)*rad*ry*0.88, size, 0, Math.PI*2); ctx.fill();
+    }
+  }
+  function drawDiamondTexture(cx,cy,rx,ry,color,lw){
+    ctx.strokeStyle=color; ctx.lineWidth=lw*0.6; ctx.globalAlpha=0.6;
+    const lines=6;
+    for(let i=-lines;i<=lines;i++){
+      const off = i*(rx*2/lines);
+      ctx.beginPath(); ctx.moveTo(cx-rx+off, cy-ry); ctx.lineTo(cx-rx+off+ry*1.5, cy+ry); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+rx-off, cy-ry); ctx.lineTo(cx+rx-off-ry*1.5, cy+ry); ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+  }
+  function drawStripesTexture(cx,cy,rx,ry,color,lw,count){
+    ctx.strokeStyle=color; ctx.lineWidth=lw*1.2; ctx.globalAlpha=0.65;
+    for(let i=0;i<count;i++){
+      const t=(i+0.5)/count, x=cx-rx+rx*2*t;
+      ctx.beginPath();
+      ctx.moveTo(x, cy-ry*0.92);
+      ctx.quadraticCurveTo(x+(t-0.5)*rx*0.35, cy, x, cy+ry*0.92);
+      ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+  }
+
+  function drawStem(cx, topY, size){
+    ctx.strokeStyle='#6b4429'; ctx.lineWidth=Math.max(1.5,size*0.3); ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.moveTo(cx, topY+size*0.2);
+    ctx.quadraticCurveTo(cx+size*0.5, topY-size*0.1, cx+size*0.22, topY-size*0.75);
+    ctx.stroke();
+    ctx.lineCap='butt';
+  }
+  function drawLeaf(cx, topY, size, lw){
+    ctx.save();
+    ctx.translate(cx+size*0.2, topY-size*0.35);
+    ctx.rotate(-0.5);
+    ctx.fillStyle='#5c9a48';
+    ctx.beginPath(); ctx.ellipse(0,0,size*0.6,size*0.26,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw*0.6; ctx.stroke();
+    ctx.restore();
+    drawStem(cx,topY,size*0.7);
+  }
+  function drawCrown(cx, topY, rx, size, lw){
+    const blades=5;
+    for(let i=0;i<blades;i++){
+      const t=(i-(blades-1)/2)/(blades-1);
+      const bx = cx + t*rx*1.3, tipx = bx + t*rx*0.35;
+      const bh = size*(1-Math.abs(t)*0.35);
+      const pts=[{x:bx-rx*0.1,y:topY+size*0.12},{x:bx+rx*0.1,y:topY+size*0.12},{x:tipx,y:topY-bh}];
+      ctx.fillStyle = i%2===0?'#6fae5a':'#589c48';
+      poly(ctx,pts); ctx.fill();
+      ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw*0.6;
+      poly(ctx,pts); ctx.stroke();
+    }
+  }
+  function drawCalyx(cx, topY, rx, size, lw){
+    const leaves=6;
+    for(let i=0;i<leaves;i++){
+      const ang=(i/leaves)*Math.PI*2;
+      const lx=cx+Math.cos(ang)*rx*0.42, ly=topY+size*0.15+Math.sin(ang)*rx*0.22;
+      ctx.save(); ctx.translate(lx,ly); ctx.rotate(ang);
+      ctx.fillStyle='#5c9a48';
+      ctx.beginPath(); ctx.ellipse(0,0,rx*0.26,rx*0.12,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw*0.5; ctx.stroke();
+      ctx.restore();
+    }
+    ctx.fillStyle='#5c9a48';
+    ctx.beginPath(); ctx.arc(cx,topY+size*0.15,rx*0.14,0,Math.PI*2); ctx.fill();
+  }
+
+  function applyTexture(cfg, cx, cyc, rx, ry, lw){
+    if(cfg.texture==='dots') drawDotsTexture(cx,cyc,rx,ry,cfg.textureColor,cfg.dotCount||14,Math.max(1,rx*0.09));
+    else if(cfg.texture==='diamond') drawDiamondTexture(cx,cyc,rx,ry,cfg.textureColor,lw);
+    else if(cfg.texture==='stripes') drawStripesTexture(cx,cyc,rx,ry,cfg.textureColor,lw,cfg.stripeCount||5);
+  }
+
+  function drawFruitBall(cx, baseY, rx, ry, cfg, lw){
+    const cyc = baseY-ry;
+    ctx.fillStyle='rgba(0,0,0,0.16)';
+    ctx.beginPath(); ctx.ellipse(cx, baseY+2, rx*0.8, Math.max(3,ry*0.16), 0,0,Math.PI*2); ctx.fill();
+
+    const grad = ctx.createRadialGradient(cx-rx*0.32, cyc-ry*0.32, rx*0.1, cx, cyc, Math.max(rx,ry)*1.05);
+    grad.addColorStop(0, cfg.colorLight);
+    grad.addColorStop(0.55, cfg.color);
+    grad.addColorStop(1, cfg.colorDark);
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.ellipse(cx, cyc, rx, ry, 0, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw; ctx.stroke();
+
+    ctx.save();
+    ctx.beginPath(); ctx.ellipse(cx,cyc,rx,ry,0,0,Math.PI*2); ctx.clip();
+    applyTexture(cfg, cx, cyc, rx, ry, lw);
+    ctx.restore();
+
+    ctx.fillStyle='rgba(255,255,255,0.5)';
+    ctx.beginPath(); ctx.ellipse(cx-rx*0.32, cyc-ry*0.36, rx*0.22, ry*0.13, -0.4, 0, Math.PI*2); ctx.fill();
+    return cyc-ry;
+  }
+
+  function drawFruitCluster(cx, baseY, rx, ry, cfg, lw){
+    ctx.fillStyle='rgba(0,0,0,0.16)';
+    ctx.beginPath(); ctx.ellipse(cx, baseY+2, rx*0.75, Math.max(3,ry*0.14), 0,0,Math.PI*2); ctx.fill();
+    const berries = [
+      {dx:-0.45,dy:-0.15,r:0.30},{dx:0.05,dy:-0.10,r:0.32},{dx:0.5,dy:-0.15,r:0.28},
+      {dx:-0.28,dy:0.25,r:0.30},{dx:0.22,dy:0.28,r:0.30},{dx:-0.02,dy:0.55,r:0.28},
+      {dx:-0.5,dy:0.5,r:0.22},{dx:0.48,dy:0.5,r:0.22}
+    ];
+    let topMost = baseY;
+    berries.forEach(b=>{
+      const bx = cx+b.dx*rx*1.6, by = baseY-ry*0.9+b.dy*ry*1.5, br=rx*b.r*1.3;
+      topMost = Math.min(topMost, by-br);
+      const grad = ctx.createRadialGradient(bx-br*0.3,by-br*0.3,br*0.1,bx,by,br*1.05);
+      grad.addColorStop(0, cfg.colorLight);
+      grad.addColorStop(0.6, cfg.color);
+      grad.addColorStop(1, cfg.colorDark);
+      ctx.fillStyle=grad;
+      ctx.beginPath(); ctx.arc(bx,by,br,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw*0.7; ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,0.5)';
+      ctx.beginPath(); ctx.arc(bx-br*0.3,by-br*0.3,br*0.28,0,Math.PI*2); ctx.fill();
+    });
+    return topMost;
+  }
+
+  function drawBananaBunch(cx, baseY, rx, ry, cfg, lw){
+    ctx.fillStyle='rgba(0,0,0,0.16)';
+    ctx.beginPath(); ctx.ellipse(cx, baseY+2, rx*0.8, Math.max(3,ry*0.14), 0,0,Math.PI*2); ctx.fill();
+    const bananas = [{dx:-0.35,rot:-0.25},{dx:-0.1,rot:-0.05},{dx:0.18,rot:0.12},{dx:0.42,rot:0.28}];
+    let topMost = baseY - ry*1.7;
+    bananas.forEach(b=>{
+      const bx = cx+b.dx*rx*1.5;
+      ctx.save();
+      ctx.translate(bx, baseY-ry*0.8);
+      ctx.rotate(b.rot);
+      const grad = ctx.createLinearGradient(-rx*0.25,-ry*0.9,rx*0.25,ry*0.1);
+      grad.addColorStop(0, cfg.colorLight);
+      grad.addColorStop(1, cfg.color);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(-rx*0.16, ry*0.15);
+      ctx.quadraticCurveTo(-rx*0.32, -ry*0.9, 0, -ry*1.55);
+      ctx.quadraticCurveTo(rx*0.32, -ry*0.9, rx*0.16, ry*0.15);
+      ctx.quadraticCurveTo(0, ry*0.28, -rx*0.16, ry*0.15);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw*0.7; ctx.stroke();
+      ctx.strokeStyle=cfg.colorDark; ctx.lineWidth=lw*0.5; ctx.globalAlpha=0.6;
+      ctx.beginPath(); ctx.moveTo(-rx*0.1,ry*0.05); ctx.quadraticCurveTo(-rx*0.22,-ry*0.85,0,-ry*1.45); ctx.stroke();
+      ctx.globalAlpha=1;
+      ctx.restore();
+    });
+    return topMost;
+  }
+
+  function drawFruitHeart(cx, baseY, rx, ry, cfg, lw){
+    ctx.fillStyle='rgba(0,0,0,0.16)';
+    ctx.beginPath(); ctx.ellipse(cx, baseY+2, rx*0.75, Math.max(3,ry*0.16), 0,0,Math.PI*2); ctx.fill();
+    const cyc = baseY - ry*0.85;
+    function heartPath(){
+      ctx.beginPath();
+      ctx.moveTo(cx, baseY);
+      ctx.quadraticCurveTo(cx-rx*1.15, baseY-ry*1.3, cx-rx*0.55, cyc-ry*0.85);
+      ctx.quadraticCurveTo(cx, cyc-ry*1.25, cx+rx*0.55, cyc-ry*0.85);
+      ctx.quadraticCurveTo(cx+rx*1.15, baseY-ry*1.3, cx, baseY);
+      ctx.closePath();
+    }
+    const grad = ctx.createRadialGradient(cx-rx*0.3, cyc-ry*0.3, rx*0.1, cx, cyc, Math.max(rx,ry)*1.1);
+    grad.addColorStop(0, cfg.colorLight);
+    grad.addColorStop(0.55, cfg.color);
+    grad.addColorStop(1, cfg.colorDark);
+    heartPath(); ctx.fillStyle = grad; ctx.fill();
+    heartPath(); ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw; ctx.stroke();
+
+    ctx.save(); heartPath(); ctx.clip();
+    drawDotsTexture(cx,cyc-ry*0.3,rx*0.9,ry*0.9,cfg.textureColor,cfg.dotCount||14,Math.max(1,rx*0.06));
+    ctx.restore();
+
+    ctx.fillStyle='rgba(255,255,255,0.5)';
+    ctx.beginPath(); ctx.ellipse(cx-rx*0.3, cyc-ry*0.55, rx*0.18, ry*0.16, -0.5, 0, Math.PI*2); ctx.fill();
+    return cyc - ry*1.25;
+  }
+
+  function drawSingleFruit(cfg, cx, baseY, rx, ry, lw){
+    let topY;
+    if(cfg.shape==='cluster') topY = drawFruitCluster(cx, baseY, rx, ry, cfg, lw);
+    else if(cfg.shape==='bananaBunch') topY = drawBananaBunch(cx, baseY, rx, ry, cfg, lw);
+    else if(cfg.shape==='heart') topY = drawFruitHeart(cx, baseY, rx, ry, cfg, lw);
+    else topY = drawFruitBall(cx, baseY, rx, ry, cfg, lw);
+
+    const size = rx*0.55;
+    if(cfg.topper==='stem') drawStem(cx, topY, size);
+    else if(cfg.topper==='leaf') drawLeaf(cx, topY, size, lw);
+    else if(cfg.topper==='crown') drawCrown(cx, topY, rx, size*1.5, lw);
+    else if(cfg.topper==='calyx') drawCalyx(cx, topY, rx, size, lw);
+
+    return topY - rx*(TOPPER_EXTRA_FRAC[cfg.topper||'none']||0);
+  }
+
+  function drawMagicStar(cx, topY, size, lw){
+    const spikes=5, outer=size, inner=size*0.45;
+    ctx.save();
+    ctx.translate(cx, topY-size*0.25);
+    ctx.beginPath();
+    for(let i=0;i<spikes*2;i++){
+      const r = i%2===0 ? outer : inner;
+      const ang = (i/(spikes*2))*Math.PI*2 - Math.PI/2;
+      const px = Math.cos(ang)*r, py = Math.sin(ang)*r;
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+    ctx.fillStyle='#f6e27a';
+    ctx.fill();
+    ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw*0.6;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // A single imaginary fruit that blends both parent fruits — left half looks
+  // like fruit A, right half like fruit B, stitched together with a magic seam.
+  function drawHybridFruit(cx, baseY, rx, ry, cfg1, cfg2, lw){
+    const cyc = baseY-ry;
+    ctx.fillStyle='rgba(0,0,0,0.16)';
+    ctx.beginPath(); ctx.ellipse(cx, baseY+2, rx*0.8, Math.max(3,ry*0.16), 0,0,Math.PI*2); ctx.fill();
+
+    function fullPath(){ ctx.beginPath(); ctx.ellipse(cx,cyc,rx,ry,0,0,Math.PI*2); }
+
+    ctx.save();
+    fullPath(); ctx.clip();
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(cx-rx-2, cyc-ry-2, rx+2, ry*2+4); ctx.clip();
+    const grad1 = ctx.createRadialGradient(cx-rx*0.4, cyc-ry*0.32, rx*0.1, cx, cyc, Math.max(rx,ry)*1.05);
+    grad1.addColorStop(0, cfg1.colorLight); grad1.addColorStop(0.55, cfg1.color); grad1.addColorStop(1, cfg1.colorDark);
+    ctx.fillStyle = grad1; fullPath(); ctx.fill();
+    applyTexture(cfg1, cx, cyc, rx, ry, lw);
+    ctx.restore();
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(cx, cyc-ry-2, rx+2, ry*2+4); ctx.clip();
+    const grad2 = ctx.createRadialGradient(cx+rx*0.15, cyc-ry*0.32, rx*0.1, cx, cyc, Math.max(rx,ry)*1.05);
+    grad2.addColorStop(0, cfg2.colorLight); grad2.addColorStop(0.55, cfg2.color); grad2.addColorStop(1, cfg2.colorDark);
+    ctx.fillStyle = grad2; fullPath(); ctx.fill();
+    applyTexture(cfg2, cx, cyc, rx, ry, lw);
+    ctx.restore();
+
+    ctx.restore();
+
+    fullPath(); ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw; ctx.stroke();
+    ctx.strokeStyle='#8a5fc9'; ctx.lineWidth=lw*0.9; ctx.setLineDash([2.5,2.5]);
+    ctx.beginPath(); ctx.moveTo(cx, cyc-ry); ctx.lineTo(cx, cyc+ry); ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle='rgba(255,255,255,0.5)';
+    ctx.beginPath(); ctx.ellipse(cx-rx*0.32, cyc-ry*0.36, rx*0.2, ry*0.12, -0.4, 0, Math.PI*2); ctx.fill();
+
+    drawMagicStar(cx, cyc-ry, rx*0.4, lw);
+    return cyc-ry-rx*0.55;
+  }
+
+  function drawRoofForStand(s, top, cx, cy, halfW, boxH, roofH, stripeColors, lw){
+    const baseY = cy-boxH;
+    if(s.isMagic){
+      const parts = String(s.id).split('_');
+      const cfg1 = fruitVisual(parts[0]), cfg2 = fruitVisual(parts[1]);
+      const rx = halfW*0.5;
+      const y = drawHybridFruit(cx, baseY, rx, rx*1.05, cfg1, cfg2, lw);
+      return {x:cx, y};
+    }
+    const cfg = fruitVisual(s.id);
+    const rx = halfW*0.55;
+    const y = drawSingleFruit(cfg, cx, baseY, rx, rx*(cfg.aspect||1), lw);
+    return {x:cx, y};
+  }
+
   function drawStand(s){
     const scale = standScale(s);
     const cx = s.x, cy = s.y;
@@ -1570,7 +2009,6 @@
       top:{x:cx,y:cy-depthHalf-boxH}, right:{x:cx+halfW,y:cy-boxH},
       bottom:{x:cx,y:cy+depthHalf-boxH}, left:{x:cx-halfW,y:cy-boxH}
     };
-    const apex = {x:cx, y:cy-boxH-roofH};
 
     if(s.isMagic){
       const glow = ctx.createRadialGradient(cx, cy-boxH, 4, cx, cy-boxH, halfW*2.1);
@@ -1634,29 +2072,12 @@
     ctx.font = `${Math.round(11*scale)}px "Baloo 2", sans-serif`;
     ctx.fillText(`${price}€`, lc.x, lc.y);
 
-    // ---- roof (two visible slopes) ----
+    // ---- oversized 3D fruit sitting on the counter — the stand's signature look ----
     const stripeColors = s.isMagic ? [s.colorB, s.colorA] : [s.colorA, '#f7ede2'];
-    ctx.fillStyle = stripeColors[0];
-    poly(ctx,[top.right, top.bottom, apex]); ctx.fill();
-    ctx.fillStyle = stripeColors[1];
-    poly(ctx,[top.left, top.bottom, apex]); ctx.fill();
-    ctx.strokeStyle = OUTLINE; ctx.lineWidth = lw;
-    poly(ctx,[top.right, top.bottom, apex]); ctx.stroke();
-    poly(ctx,[top.left, top.bottom, apex]); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(top.bottom.x, top.bottom.y); ctx.lineTo(apex.x, apex.y); ctx.stroke();
-
-    // clean eave trim (no busy scallops)
-    ctx.strokeStyle = '#fff'; ctx.lineWidth = lw*0.9; ctx.globalAlpha=0.55;
-    ctx.beginPath(); ctx.moveTo(top.left.x,top.left.y); ctx.lineTo(top.bottom.x,top.bottom.y); ctx.lineTo(top.right.x,top.right.y); ctx.stroke();
-    ctx.globalAlpha=1;
-
-    // apex ornament
-    ctx.fillStyle = s.isMagic ? '#8a5fc9' : '#e8973a';
-    ctx.beginPath(); ctx.arc(apex.x, apex.y-4, 5, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle=OUTLINE; ctx.lineWidth=lw*0.8; ctx.stroke();
+    const apex = drawRoofForStand(s, top, cx, cy, halfW, boxH, roofH, stripeColors, lw);
 
     // level medal, centered relative to the stand (not on a skewed corner) — stays legible at any zoom
-    const medalX = cx + halfW*0.72, medalY = cy - boxH - roofH*0.35;
+    const medalX = cx + halfW*0.72, medalY = Math.min(cy - boxH - roofH*0.35, apex.y + roofH*0.25);
     ctx.fillStyle = s.isMagic ? '#8a5fc9' : '#e8973a';
     ctx.beginPath();
     ctx.moveTo(medalX,medalY+9); ctx.lineTo(medalX-6,medalY+21); ctx.lineTo(medalX,medalY+16);
@@ -1684,13 +2105,6 @@
         ctx.globalAlpha = 1;
       }
     }
-
-    if(s.stock===0){
-      ctx.font='11px "Nunito"';
-      ctx.fillStyle = '#c1443d';
-      ctx.textAlign='center';
-      ctx.fillText('vide — touche pour gérer', cx, cy+depthHalf+16);
-    }
   }
 
   // =========================================================
@@ -1701,34 +2115,63 @@
     const working = owner.state === 'working';
     const bob = moving ? Math.abs(Math.sin(time*9))*4 : Math.sin(time*3)*2;
     const x = owner.x, y = owner.y - bob;
+    const swing = moving ? Math.sin(time*9)*7 : 0;
 
     ctx.fillStyle='rgba(0,0,0,0.15)';
-    ctx.beginPath(); ctx.ellipse(x, owner.y+8, 16, 5, 0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x, owner.y+8, 15, 5, 0,0,Math.PI*2); ctx.fill();
+    ctx.lineCap = 'round';
 
-    if(moving){
-      const swing = Math.sin(time*9)*6;
-      ctx.strokeStyle = '#6b4429'; ctx.lineWidth = 5; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(x-4,y-2); ctx.lineTo(x-4-swing,y+16); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x+4,y-2); ctx.lineTo(x+4+swing,y+16); ctx.stroke();
-    }
+    // legs
+    ctx.strokeStyle = '#4a3222'; ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.moveTo(x-4,y-4); ctx.lineTo(x-4-swing*0.6,y+15); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x+4,y-4); ctx.lineTo(x+4+swing*0.6,y+15); ctx.stroke();
 
+    // arms
+    ctx.strokeStyle = '#e8973a'; ctx.lineWidth = 4.5;
+    ctx.beginPath(); ctx.moveTo(x-9,y-24); ctx.lineTo(x-9+swing*0.5,y-6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x+9,y-24); ctx.lineTo(x+9-swing*0.5,y-6); ctx.stroke();
+    ctx.fillStyle = '#e8b087';
+    ctx.beginPath();
+    ctx.arc(x-9+swing*0.5, y-6, 2.6, 0, Math.PI*2);
+    ctx.arc(x+9-swing*0.5, y-6, 2.6, 0, Math.PI*2);
+    ctx.fill();
+
+    // torso (apron)
     ctx.fillStyle = '#e8973a';
-    roundRect(ctx, x-12, y-28, 24, 30, 8);
+    roundRect(ctx, x-11, y-28, 22, 24, 6);
     ctx.fill();
-    ctx.font = '30px sans-serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('🧑‍🌾', x, y-38);
-    ctx.fillStyle = '#fbf3e3';
-    roundRect(ctx, x-8, y-16, 16, 14, 4);
+    ctx.fillStyle = '#c9762a';
+    roundRect(ctx, x-7, y-24, 14, 10, 3);
     ctx.fill();
+    ctx.strokeStyle = '#6b4429'; ctx.lineWidth = 1;
+    roundRect(ctx, x-11, y-28, 22, 24, 6);
+    ctx.stroke();
+
+    // head
+    const headY = y-36;
+    ctx.fillStyle = '#e8b087';
+    ctx.beginPath(); ctx.arc(x, headY, 8, 0, Math.PI*2); ctx.fill();
+
+    // straw hat
+    ctx.fillStyle = '#e8b23a';
+    ctx.beginPath(); ctx.ellipse(x, headY-4, 12.5, 4.2, 0, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#c9922a'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(x, headY-4, 12.5, 4.2, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle = '#e8b23a';
+    ctx.beginPath(); ctx.moveTo(x-6,headY-6); ctx.quadraticCurveTo(x,headY-15,x+6,headY-6); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#c9922a'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x-6,headY-6); ctx.quadraticCurveTo(x,headY-15,x+6,headY-6); ctx.stroke();
+
+    // face
+    ctx.fillStyle = '#3c2a1e';
+    ctx.beginPath(); ctx.arc(x-3,headY+1,0.9,0,Math.PI*2); ctx.arc(x+3,headY+1,0.9,0,Math.PI*2); ctx.fill();
 
     if(working){
-      const t = time%0.6;
-      const wiggle = Math.sin(time*16)*6;
+      const wiggle = Math.sin(time*16)*8;
       ctx.save();
-      ctx.translate(x+16, y-40);
+      ctx.translate(x+13, y-8);
       ctx.rotate(wiggle*Math.PI/180);
-      ctx.font = '18px sans-serif';
+      ctx.font = '16px sans-serif';
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText('🔧', 0, 0);
       ctx.restore();
@@ -1758,6 +2201,7 @@
     const t = time*speedFactor + c.seed;
     const swing = moving ? Math.sin(t)*7 : 0;
     const headBob = moving ? Math.sin(t*2)*1 : 0;
+    const facingBack = c.state === 'toStand';
 
     ctx.save();
     ctx.translate(c.x, c.y);
@@ -1788,20 +2232,35 @@
     ctx.fillStyle = c.skin;
     ctx.beginPath(); ctx.arc(0, headY, 6.5, 0, Math.PI*2); ctx.fill();
 
-    ctx.fillStyle = c.hair;
-    ctx.beginPath();
-    ctx.arc(0, headY-1.5, 6.9, Math.PI*1.02, Math.PI*1.98);
-    ctx.fill();
+    if(facingBack){
+      // walking toward a stand: seen from behind, hair covers the whole head, no face
+      ctx.fillStyle = c.hair;
+      ctx.beginPath(); ctx.arc(0, headY, 6.6, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(0, headY-6); ctx.lineTo(0, headY+2); ctx.stroke();
+      // little tote bag swinging from a hand, off to shop
+      ctx.fillStyle = c.shirt;
+      roundRect(ctx, 5+swing*0.65-3, -13, 6, 7, 1.5);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 0.6;
+      roundRect(ctx, 5+swing*0.65-3, -13, 6, 7, 1.5);
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = c.hair;
+      ctx.beginPath();
+      ctx.arc(0, headY-1.5, 6.9, Math.PI*1.02, Math.PI*1.98);
+      ctx.fill();
 
-    ctx.fillStyle = '#3c2a1e';
-    ctx.beginPath();
-    ctx.arc(-2, headY+0.5, 0.8, 0, Math.PI*2);
-    ctx.arc(2, headY+0.5, 0.8, 0, Math.PI*2);
-    ctx.fill();
-    ctx.strokeStyle = '#3c2a1e'; ctx.lineWidth = 0.8;
-    ctx.beginPath();
-    ctx.arc(0, headY+2.5, 2, 0.15*Math.PI, 0.85*Math.PI);
-    ctx.stroke();
+      ctx.fillStyle = '#3c2a1e';
+      ctx.beginPath();
+      ctx.arc(-2, headY+0.5, 0.8, 0, Math.PI*2);
+      ctx.arc(2, headY+0.5, 0.8, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = '#3c2a1e'; ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.arc(0, headY+2.5, 2, 0.15*Math.PI, 0.85*Math.PI);
+      ctx.stroke();
+    }
 
     ctx.restore();
   }
@@ -1893,6 +2352,7 @@
     return JSON.stringify({
       money, sales, worldLevel, staffCount, expansions,
       GRID_COLS, GRID_ROWS,
+      manuallyUnlockedFruits: [...manuallyUnlockedFruits],
       stands: stands.map(s=>({
         col:s.col, row:s.row, id:s.id, emoji:s.emoji, name:s.name,
         level:s.level, basePrice:s.basePrice, baseCost:s.baseCost,
@@ -1918,6 +2378,7 @@
     expansions = data.expansions || 0;
     GRID_COLS = data.GRID_COLS || GRID_COLS;
     GRID_ROWS = data.GRID_ROWS || GRID_ROWS;
+    manuallyUnlockedFruits = new Set(data.manuallyUnlockedFruits || []);
     stands = (data.stands||[]).map(sd=>{
       const c = tileCenter(sd.col, sd.row);
       return Object.assign({}, sd, {x:c.x, y:c.y, bob: Math.random()*Math.PI*2});
